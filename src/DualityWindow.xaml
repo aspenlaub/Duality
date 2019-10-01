@@ -1,0 +1,14 @@
+﻿<Window x:Class="Aspenlaub.Net.GitHub.CSharp.Duality.DualityWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Duality" Height="73" MaxWidth="870" WindowStyle="ToolWindow" Icon="yinyang.ico" SizeToContent="WidthAndHeight" Closing="DualityWindow_OnClosing">
+    <StackPanel Orientation="Horizontal">
+        <TextBox HorizontalAlignment="Left" Name="InfoText" Width="Auto" Margin="5" Background="#DDDDDDDD" Text="Stand by.." Padding="15,0,15,0"/>
+        <Button Content="_Stop" Height="24" VerticalAlignment="Top" Margin="5,5,5,5" Name="StopButton" Width="64" Click="StopButton_OnClick" />
+        <Button Content="_Restart" Height="24" VerticalAlignment="Top" Margin="5,5,5,5" Name="RestartButton" Width="64" Click="RestartButton_OnClick" />
+        <Button Content="_Close" Height="24" VerticalAlignment="Top" Margin="5,5,5,5" Name="CloseButton" Width="64" Click="CloseButton_OnClick" />
+    </StackPanel>
+</Window>
