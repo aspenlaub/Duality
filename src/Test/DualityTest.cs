@@ -17,7 +17,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
         public DualityTest() {
             ComponentProvider = new ComponentProvider();
             var errorsAndInfos = new ErrorsAndInfos();
-            TemplateTestRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(CSharp)\Duality\Test", errorsAndInfos);
+            TemplateTestRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\Test", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
         }
 
