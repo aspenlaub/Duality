@@ -17,14 +17,20 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
         public DualityTest() {
             ComponentProvider = new ComponentProvider();
             var errorsAndInfos = new ErrorsAndInfos();
-            TemplateTestRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\Test", errorsAndInfos);
+            TemplateTestRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\src\Test", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
+        }
+
+        private IFolder TempFolder() {
+            var folder = new Folder(Path.GetTempPath()).SubFolder(nameof(DualityTest));
+            folder.CreateIfNecessary();
+            return folder;
         }
 
         [TestMethod]
         public void CanSaveAndLoadFolders() {
             var folders = CreateTestFoldersOnTwoMachines(TemplateTestRootFolder, new DateTime(0));
-            var fileName = TemplateTestRootFolder.SubFolder("Temp").FullName + @"\CanSaveAndLoadFolders.xml";
+            var fileName = TempFolder().FullName + @"\CanSaveAndLoadFolders.xml";
             File.Delete(fileName);
             Assert.IsFalse(File.Exists(fileName));
             folders.Save(fileName);
@@ -88,7 +94,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
             work.UpdateFolders(folders);
             var timeStamp = DateTime.Now;
             work.DualityFolders[0].LastCheckedAt = timeStamp;
-            var fileName = TemplateTestRootFolder.SubFolder("Temp").FullName + @"\CanSaveAndLoadWorkForMachine1.xml";
+            var fileName = TempFolder().FullName + @"\CanSaveAndLoadWorkForMachine1.xml";
             File.Delete(fileName);
             Assert.IsFalse(File.Exists(fileName));
             work.Save(fileName);
@@ -124,7 +130,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
         [TestMethod]
         public void CanDoBasicProcessing() {
             var errorsAndInfos = new ErrorsAndInfos();
-            var testRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\Test\CanDoBasicProcessing", errorsAndInfos);
+            var testRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\src\Test\CanDoBasicProcessing", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
             CopyTemplateTestFileSystemTo(testRootFolder);
             var folders = CreateTestFoldersOnTwoMachines(testRootFolder, new DateTime(0));
@@ -167,7 +173,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
         [TestMethod]
         public void NextCheckIsWithinCheckInterval() {
             var errorsAndInfos = new ErrorsAndInfos();
-            var testRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\Test\NextCheckIsWithinCheckInterval", errorsAndInfos);
+            var testRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\src\Test\NextCheckIsWithinCheckInterval", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
             CopyTemplateTestFileSystemTo(testRootFolder);
             const long ticks = 1000000000000;
