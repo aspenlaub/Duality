@@ -12,25 +12,71 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
     [TestClass]
     public class DualityTest {
         protected readonly IComponentProvider ComponentProvider;
-        protected IFolder TemplateTestRootFolder;
 
         public DualityTest() {
             ComponentProvider = new ComponentProvider();
-            var errorsAndInfos = new ErrorsAndInfos();
-            TemplateTestRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\src\Test", errorsAndInfos);
-            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
         }
 
-        private IFolder TempFolder() {
-            var folder = new Folder(Path.GetTempPath()).SubFolder(nameof(DualityTest));
+        private IFolder TempFolder(bool master) {
+            var folder = new Folder(Path.GetTempPath()).SubFolder(nameof(DualityTest) + (master ? "Master" : ""));
             folder.CreateIfNecessary();
+            if (master) {
+                var subFolders = new List<string> {
+                    @"\CanDoBasicProcessing\Machine1\Folder\A",
+                    @"\CanDoBasicProcessing\Machine1\Folder\B",
+                    @"\CanDoBasicProcessing\Machine1\Folder2\G",
+                    @"\CanDoBasicProcessing\Machine1\Folder2\H",
+                    @"\CanDoBasicProcessing\Machine1\OtherFolder\A",
+                    @"\CanDoBasicProcessing\Machine1\OtherFolder\C",
+                    @"\CanDoBasicProcessing\Machine1\OtherFolder2\H",
+                    @"\CanDoBasicProcessing\Machine1\OtherFolder2\I",
+                    @"\CanDoBasicProcessing\Machine1\Persistence",
+                    @"\CanDoBasicProcessing\Machine2\Folder\D",
+                    @"\CanDoBasicProcessing\Machine2\Folder\E",
+                    @"\CanDoBasicProcessing\Machine2\OtherFolder\E",
+                    @"\CanDoBasicProcessing\Machine2\OtherFolder\F",
+                    @"\CanDoBasicProcessing\Machine2\Persistence",
+                    @"\Machine1\Folder\A",
+                    @"\Machine1\Folder\B",
+                    @"\Machine1\Folder2\G",
+                    @"\Machine1\Folder2\H",
+                    @"\Machine1\OtherFolder\A",
+                    @"\Machine1\OtherFolder\C",
+                    @"\Machine1\OtherFolder2\H",
+                    @"\Machine1\OtherFolder2\I",
+                    @"\Machine1\Persistence",
+                    @"\Machine2\Folder\D",
+                    @"\Machine2\Folder\E",
+                    @"\Machine2\OtherFolder\E",
+                    @"\Machine2\OtherFolder\F",
+                    @"\Machine2\Persistence",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\Folder\A",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\Folder\B",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\Folder2\G",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\Folder2\H",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder\A",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder\B",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder\C",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder2\H",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder2\I",
+                    @"\NextCheckIsWithinCheckInterval\Machine1\Persistence",
+                    @"\NextCheckIsWithinCheckInterval\Machine2\Folder\D",
+                    @"\NextCheckIsWithinCheckInterval\Machine2\Folder\E",
+                    @"\NextCheckIsWithinCheckInterval\Machine2\OtherFolder\E",
+                    @"\NextCheckIsWithinCheckInterval\Machine2\OtherFolder\F",
+                    @"\NextCheckIsWithinCheckInterval\Machine2\Persistence",
+                };
+                foreach (var subFolder in subFolders.Select(f => folder.SubFolder(f))) {
+                    subFolder.CreateIfNecessary();
+                }
+            }
             return folder;
         }
 
         [TestMethod]
         public void CanSaveAndLoadFolders() {
-            var folders = CreateTestFoldersOnTwoMachines(TemplateTestRootFolder, new DateTime(0));
-            var fileName = TempFolder().FullName + @"\CanSaveAndLoadFolders.xml";
+            var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
+            var fileName = TempFolder(false).FullName + @"\CanSaveAndLoadFolders.xml";
             File.Delete(fileName);
             Assert.IsFalse(File.Exists(fileName));
             folders.Save(fileName);
@@ -69,7 +115,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
 
         [TestMethod]
         public void CanCreateWorkForMachine1() {
-            var folders = CreateTestFoldersOnTwoMachines(TemplateTestRootFolder, new DateTime(0));
+            var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
             var work = new DualityWork { ForMachine = folders[0].MachineId };
             work.UpdateFolders(folders);
             Assert.AreEqual(6, work.DualityFolders.Count);
@@ -77,7 +123,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
 
         [TestMethod]
         public void CanUpdateWorkForMachine1() {
-            var folders = CreateTestFoldersOnTwoMachines(TemplateTestRootFolder, new DateTime(0));
+            var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
             var work = new DualityWork { ForMachine = folders[0].MachineId };
             work.UpdateFolders(folders);
             Assert.AreEqual(6, work.DualityFolders.Count);
@@ -89,12 +135,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
 
         [TestMethod]
         public void CanSaveAndLoadWorkForMachine1() {
-            var folders = CreateTestFoldersOnTwoMachines(TemplateTestRootFolder, new DateTime(0));
+            var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
             var work = new DualityWork { ForMachine = folders[0].MachineId };
             work.UpdateFolders(folders);
             var timeStamp = DateTime.Now;
             work.DualityFolders[0].LastCheckedAt = timeStamp;
-            var fileName = TempFolder().FullName + @"\CanSaveAndLoadWorkForMachine1.xml";
+            var fileName = TempFolder(false).FullName + @"\CanSaveAndLoadWorkForMachine1.xml";
             File.Delete(fileName);
             Assert.IsFalse(File.Exists(fileName));
             work.Save(fileName);
@@ -111,8 +157,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
                 Assert.IsTrue(deleter.CanDeleteFolder(testRootFolder));
                 deleter.DeleteFolder(testRootFolder);
             }
-            CopyFolderRecursivelyButNoFiles(TemplateTestRootFolder.SubFolder("Machine1").FullName + '\\', testRootFolder.FullName + @"\Machine1\");
-            CopyFolderRecursivelyButNoFiles(TemplateTestRootFolder.SubFolder("Machine2").FullName + '\\', testRootFolder.FullName + @"\Machine2\");
+            CopyFolderRecursivelyButNoFiles(TempFolder(true).SubFolder("Machine1").FullName + '\\', testRootFolder.FullName + @"\Machine1\");
+            CopyFolderRecursivelyButNoFiles(TempFolder(true).SubFolder("Machine2").FullName + '\\', testRootFolder.FullName + @"\Machine2\");
         }
 
         private static void CopyFolderRecursivelyButNoFiles(string sourceDirName, string destDirName) {
