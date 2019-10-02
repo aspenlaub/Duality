@@ -176,7 +176,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
         [TestMethod]
         public void CanDoBasicProcessing() {
             var errorsAndInfos = new ErrorsAndInfos();
-            var testRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\src\Test\CanDoBasicProcessing", errorsAndInfos);
+            var testRootFolder = TempFolder(true).SubFolder("CanDoBasicProcessing");
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
             CopyTemplateTestFileSystemTo(testRootFolder);
             var folders = CreateTestFoldersOnTwoMachines(testRootFolder, new DateTime(0));
@@ -219,7 +219,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
         [TestMethod]
         public void NextCheckIsWithinCheckInterval() {
             var errorsAndInfos = new ErrorsAndInfos();
-            var testRootFolder = ComponentProvider.FolderResolver.Resolve(@"$(GitHub)\Duality\src\Test\NextCheckIsWithinCheckInterval", errorsAndInfos);
+            var testRootFolder = TempFolder(true).SubFolder("NextCheckIsWithinCheckInterval");
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
             CopyTemplateTestFileSystemTo(testRootFolder);
             const long ticks = 1000000000000;
