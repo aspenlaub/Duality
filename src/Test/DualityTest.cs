@@ -11,64 +11,58 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
     [TestClass]
     public class DualityTest {
-        protected readonly IComponentProvider ComponentProvider;
-
-        public DualityTest() {
-            ComponentProvider = new ComponentProvider();
-        }
-
         private IFolder TempFolder(bool master) {
             var folder = new Folder(Path.GetTempPath()).SubFolder(nameof(DualityTest) + (master ? "Master" : ""));
             folder.CreateIfNecessary();
-            if (master) {
-                var subFolders = new List<string> {
-                    @"\CanDoBasicProcessing\Machine1\Folder\A",
-                    @"\CanDoBasicProcessing\Machine1\Folder\B",
-                    @"\CanDoBasicProcessing\Machine1\Folder2\G",
-                    @"\CanDoBasicProcessing\Machine1\Folder2\H",
-                    @"\CanDoBasicProcessing\Machine1\OtherFolder\A",
-                    @"\CanDoBasicProcessing\Machine1\OtherFolder\C",
-                    @"\CanDoBasicProcessing\Machine1\OtherFolder2\H",
-                    @"\CanDoBasicProcessing\Machine1\OtherFolder2\I",
-                    @"\CanDoBasicProcessing\Machine1\Persistence",
-                    @"\CanDoBasicProcessing\Machine2\Folder\D",
-                    @"\CanDoBasicProcessing\Machine2\Folder\E",
-                    @"\CanDoBasicProcessing\Machine2\OtherFolder\E",
-                    @"\CanDoBasicProcessing\Machine2\OtherFolder\F",
-                    @"\CanDoBasicProcessing\Machine2\Persistence",
-                    @"\Machine1\Folder\A",
-                    @"\Machine1\Folder\B",
-                    @"\Machine1\Folder2\G",
-                    @"\Machine1\Folder2\H",
-                    @"\Machine1\OtherFolder\A",
-                    @"\Machine1\OtherFolder\C",
-                    @"\Machine1\OtherFolder2\H",
-                    @"\Machine1\OtherFolder2\I",
-                    @"\Machine1\Persistence",
-                    @"\Machine2\Folder\D",
-                    @"\Machine2\Folder\E",
-                    @"\Machine2\OtherFolder\E",
-                    @"\Machine2\OtherFolder\F",
-                    @"\Machine2\Persistence",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\Folder\A",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\Folder\B",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\Folder2\G",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\Folder2\H",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder\A",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder\B",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder\C",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder2\H",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder2\I",
-                    @"\NextCheckIsWithinCheckInterval\Machine1\Persistence",
-                    @"\NextCheckIsWithinCheckInterval\Machine2\Folder\D",
-                    @"\NextCheckIsWithinCheckInterval\Machine2\Folder\E",
-                    @"\NextCheckIsWithinCheckInterval\Machine2\OtherFolder\E",
-                    @"\NextCheckIsWithinCheckInterval\Machine2\OtherFolder\F",
-                    @"\NextCheckIsWithinCheckInterval\Machine2\Persistence",
-                };
-                foreach (var subFolder in subFolders.Select(f => folder.SubFolder(f))) {
-                    subFolder.CreateIfNecessary();
-                }
+            if (!master) { return folder; }
+
+            var subFolders = new List<string> {
+                @"\CanDoBasicProcessing\Machine1\Folder\A",
+                @"\CanDoBasicProcessing\Machine1\Folder\B",
+                @"\CanDoBasicProcessing\Machine1\Folder2\G",
+                @"\CanDoBasicProcessing\Machine1\Folder2\H",
+                @"\CanDoBasicProcessing\Machine1\OtherFolder\A",
+                @"\CanDoBasicProcessing\Machine1\OtherFolder\C",
+                @"\CanDoBasicProcessing\Machine1\OtherFolder2\H",
+                @"\CanDoBasicProcessing\Machine1\OtherFolder2\I",
+                @"\CanDoBasicProcessing\Machine1\Persistence",
+                @"\CanDoBasicProcessing\Machine2\Folder\D",
+                @"\CanDoBasicProcessing\Machine2\Folder\E",
+                @"\CanDoBasicProcessing\Machine2\OtherFolder\E",
+                @"\CanDoBasicProcessing\Machine2\OtherFolder\F",
+                @"\CanDoBasicProcessing\Machine2\Persistence",
+                @"\Machine1\Folder\A",
+                @"\Machine1\Folder\B",
+                @"\Machine1\Folder2\G",
+                @"\Machine1\Folder2\H",
+                @"\Machine1\OtherFolder\A",
+                @"\Machine1\OtherFolder\C",
+                @"\Machine1\OtherFolder2\H",
+                @"\Machine1\OtherFolder2\I",
+                @"\Machine1\Persistence",
+                @"\Machine2\Folder\D",
+                @"\Machine2\Folder\E",
+                @"\Machine2\OtherFolder\E",
+                @"\Machine2\OtherFolder\F",
+                @"\Machine2\Persistence",
+                @"\NextCheckIsWithinCheckInterval\Machine1\Folder\A",
+                @"\NextCheckIsWithinCheckInterval\Machine1\Folder\B",
+                @"\NextCheckIsWithinCheckInterval\Machine1\Folder2\G",
+                @"\NextCheckIsWithinCheckInterval\Machine1\Folder2\H",
+                @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder\A",
+                @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder\B",
+                @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder\C",
+                @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder2\H",
+                @"\NextCheckIsWithinCheckInterval\Machine1\OtherFolder2\I",
+                @"\NextCheckIsWithinCheckInterval\Machine1\Persistence",
+                @"\NextCheckIsWithinCheckInterval\Machine2\Folder\D",
+                @"\NextCheckIsWithinCheckInterval\Machine2\Folder\E",
+                @"\NextCheckIsWithinCheckInterval\Machine2\OtherFolder\E",
+                @"\NextCheckIsWithinCheckInterval\Machine2\OtherFolder\F",
+                @"\NextCheckIsWithinCheckInterval\Machine2\Persistence",
+            };
+            foreach (var subFolder in subFolders.Select(f => folder.SubFolder(f))) {
+                subFolder.CreateIfNecessary();
             }
             return folder;
         }
