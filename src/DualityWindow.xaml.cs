@@ -7,7 +7,6 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Autofac;
-using IContainer = Autofac.IContainer;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Duality {
     /// <summary>
@@ -16,22 +15,21 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality {
     // ReSharper disable once UnusedMember.Global
     public partial class DualityWindow {
         private DualityWorker vDualityWorker;
-        private readonly IContainer vContainer;
 
         public DualityWindow() {
             InitializeComponent();
-            vContainer = new ContainerBuilder().RegisterForPegh(new DummyCsArgumentPrompter()).Build();
+            var container = new ContainerBuilder().UsePegh(new DummyCsArgumentPrompter()).Build();
             if (Environment.MachineName.ToUpper() != "DELTAFLYER") {
                 InfoText.Text = "Sorry, you should not run this program on this machine";
                 return;
             }
             var secret = new DualityFoldersSecret();
             var errorsAndInfos = new ErrorsAndInfos();
-            var secretDualityFolders = vContainer.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos).Result;
+            var secretDualityFolders = container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos).Result;
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(errorsAndInfos.ErrorsToString());
             }
-            var persistenceFolder = vContainer.Resolve<IFolderResolver>().Resolve(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
+            var persistenceFolder = container.Resolve<IFolderResolver>().Resolve(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(errorsAndInfos.ErrorsToString());
             }

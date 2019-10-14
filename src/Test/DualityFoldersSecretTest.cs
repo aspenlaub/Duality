@@ -12,7 +12,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
         private readonly IContainer vContainer;
 
         public DualityFoldersSecretTest() {
-            vContainer = new ContainerBuilder().RegisterForPegh(new DummyCsArgumentPrompter()).Build();
+            vContainer = new ContainerBuilder().UsePegh(new DummyCsArgumentPrompter()).Build();
         }
 
         [TestMethod]
