@@ -12,7 +12,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
     [TestClass]
     public class DualityTest {
         private IFolder TempFolder(bool master) {
-            var folder = new Folder(Path.GetTempPath()).SubFolder(nameof(DualityTest) + (master ? "Master" : ""));
+            var folder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(DualityTest) + (master ? "Master" : ""));
             folder.CreateIfNecessary();
             if (!master) { return folder; }
 
