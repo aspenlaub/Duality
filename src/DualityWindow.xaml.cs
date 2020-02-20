@@ -33,7 +33,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality {
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(errorsAndInfos.ErrorsToString());
             }
-            var workFile = persistenceFolder + @"\DualityWork.xml";
+            persistenceFolder.CreateIfNecessary();
+            var workFile = persistenceFolder.FullName + @"\DualityWork.xml";
             var work = File.Exists(workFile) ? new DualityWork(workFile, Environment.MachineName) : new DualityWork();
             work.UpdateFolders(secretDualityFolders);
             File.Delete(workFile);
