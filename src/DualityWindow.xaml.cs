@@ -29,7 +29,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality {
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(errorsAndInfos.ErrorsToString());
             }
-            var persistenceFolder = container.Resolve<IFolderResolver>().Resolve(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
+            var persistenceFolder = container.Resolve<IFolderResolver>().ResolveAsync(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos).Result;
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(errorsAndInfos.ErrorsToString());
             }
