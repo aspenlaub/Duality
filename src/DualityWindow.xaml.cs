@@ -14,10 +14,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality {
     /// </summary>
     // ReSharper disable once UnusedMember.Global
     public partial class DualityWindow {
-        private DualityWorker vDualityWorker;
+        private DualityWorker DualityWorker;
 
         public DualityWindow() {
             InitializeComponent();
+        }
+
+        private async void DualityWindow_OnLoaded(object sender, RoutedEventArgs e) {
             var container = new ContainerBuilder().UsePegh(new DummyCsArgumentPrompter()).Build();
             if (Environment.MachineName.ToUpper() != "DELTAFLYER") {
                 InfoText.Text = "Sorry, you should not run this program on this machine";
@@ -25,11 +28,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality {
             }
             var secret = new DualityFoldersSecret();
             var errorsAndInfos = new ErrorsAndInfos();
-            var secretDualityFolders = container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos).Result;
+            var secretDualityFolders = await container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(errorsAndInfos.ErrorsToString());
             }
-            var persistenceFolder = container.Resolve<IFolderResolver>().ResolveAsync(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos).Result;
+            var persistenceFolder = await container.Resolve<IFolderResolver>().ResolveAsync(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(errorsAndInfos.ErrorsToString());
             }
@@ -43,32 +46,32 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality {
         }
 
         private void CreateWorker(DualityWork work, string workFile) {
-            vDualityWorker = new DualityWorker(work, workFile, InfoText);
-            RestartButton_OnClick(vDualityWorker, null);
+            DualityWorker = new DualityWorker(work, workFile, InfoText);
+            RestartButton_OnClick(DualityWorker, null);
         }
 
         private void CloseButton_OnClick(object sender, RoutedEventArgs e) {
-            vDualityWorker?.OnClosing();
+            DualityWorker?.OnClosing();
             Close();
         }
 
         private void DualityWindow_OnClosing(object sender, CancelEventArgs e) {
-            vDualityWorker?.OnClosing();
+            DualityWorker?.OnClosing();
         }
 
         private void StopButton_OnClick(object sender, RoutedEventArgs e) {
-            if (vDualityWorker.WorkerSupportsCancellation) {
-                vDualityWorker.CancelAsync();
+            if (DualityWorker.WorkerSupportsCancellation) {
+                DualityWorker.CancelAsync();
             }
         }
 
         private void RestartButton_OnClick(object sender, RoutedEventArgs e) {
-            if (vDualityWorker.IsBusy) {
+            if (DualityWorker.IsBusy) {
                 return;
             }
 
-            vDualityWorker.ResetError();
-            vDualityWorker.RunWorkerAsync();
+            DualityWorker.ResetError();
+            DualityWorker.RunWorkerAsync();
         }
     }
 }

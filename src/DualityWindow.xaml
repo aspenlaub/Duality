@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Duality" Height="73" MaxWidth="870" WindowStyle="ToolWindow" Icon="yinyang.ico" SizeToContent="WidthAndHeight" Closing="DualityWindow_OnClosing">
+        Title="Duality" Height="73" MaxWidth="870" WindowStyle="ToolWindow" Icon="yinyang.ico" Loaded="DualityWindow_OnLoaded" SizeToContent="WidthAndHeight" Closing="DualityWindow_OnClosing">
     <StackPanel Orientation="Horizontal">
         <TextBox HorizontalAlignment="Left" Name="InfoText" Width="Auto" Margin="5" Background="#DDDDDDDD" Text="Stand by.." Padding="15,0,15,0"/>
         <Button Content="_Stop" Height="24" VerticalAlignment="Top" Margin="5,5,5,5" Name="StopButton" Width="64" Click="StopButton_OnClick" />
