@@ -4,84 +4,84 @@ using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Duality {
-    public class DualityWorker : BackgroundWorker {
-        private readonly TextBox vTextBox;
-        private readonly DualityWork vDualityWork;
-        private DualityFolder vLastProcessedFolder;
-        private readonly string vWorkFileName;
-        private string vErrorMessage;
-        private bool vAllDone;
+namespace Aspenlaub.Net.GitHub.CSharp.Duality;
 
-        public DualityWorker(DualityWork work, string workFileName, TextBox textBox) {
-            vTextBox = textBox;
-            vDualityWork = work;
-            vWorkFileName = workFileName;
-            vErrorMessage = "";
-            vAllDone = false;
-            WorkerReportsProgress = true;
-            WorkerSupportsCancellation = true;
-            DoWork += BackgroundWorker_DoWork;
-            ProgressChanged += BackgroundWorker_ProgressChanged;
-        }
+public class DualityWorker : BackgroundWorker {
+    private readonly TextBox TextBox;
+    private readonly DualityWork DualityWork;
+    private DualityFolder LastProcessedFolder;
+    private readonly string WorkFileName;
+    private string ErrorMessage;
+    private bool AllDone;
 
-        public void OnClosing() {
-            DoWork -= BackgroundWorker_DoWork;
-            ProgressChanged -= BackgroundWorker_ProgressChanged;
-        }
+    public DualityWorker(DualityWork work, string workFileName, TextBox textBox) {
+        TextBox = textBox;
+        DualityWork = work;
+        WorkFileName = workFileName;
+        ErrorMessage = "";
+        AllDone = false;
+        WorkerReportsProgress = true;
+        WorkerSupportsCancellation = true;
+        DoWork += BackgroundWorker_DoWork;
+        ProgressChanged += BackgroundWorker_ProgressChanged;
+    }
 
-        private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e) {
-            var worker = sender as BackgroundWorker;
-            if (worker == null) { return; }
+    public void OnClosing() {
+        DoWork -= BackgroundWorker_DoWork;
+        ProgressChanged -= BackgroundWorker_ProgressChanged;
+    }
 
-            for (var i = 0; i < vDualityWork.DualityFolders.Count; i++) {
-                if (worker.CancellationPending) {
-                    e.Cancel = true;
-                    break;
-                }
-                vLastProcessedFolder = vDualityWork.DualityFolders[i];
-                var needsProcessing = vLastProcessedFolder.NeedsProcessing();
-                if (needsProcessing) {
-                    vErrorMessage = vLastProcessedFolder.Process();
-                }
-                if (i + 1 == vDualityWork.DualityFolders.Count) {
-                    vAllDone = vErrorMessage.Length == 0;
-                }
-                worker.ReportProgress((i + 1) * 100 / vDualityWork.DualityFolders.Count);
-                if (vErrorMessage.Length != 0) {
-                    break;
-                }
-                if (!needsProcessing) { continue; }
-                File.Delete(vWorkFileName);
-                vDualityWork.Save(vWorkFileName);
-                Thread.Sleep(50);
-            }
-        }
+    private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e) {
+        var worker = sender as BackgroundWorker;
+        if (worker == null) { return; }
 
-        private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            var worker = sender as BackgroundWorker;
-            if (worker == null) {
-                vTextBox.Text = "ERROR: background worker got lost";
-                vTextBox.Foreground = Brushes.Red;
-                return;
-            }
-
+        for (var i = 0; i < DualityWork.DualityFolders.Count; i++) {
             if (worker.CancellationPending) {
-                vTextBox.Text = "Stopped";
-            } else if (vErrorMessage.Length != 0) {
-                vTextBox.Text = "ERROR: " + vErrorMessage;
-                vTextBox.Foreground = Brushes.Red;
-            } else if (vAllDone) {
-                vTextBox.Text = "Everything is fine";
-            } else {
-                vTextBox.Text = e.ProgressPercentage + "% completed (Processed: " + vLastProcessedFolder.Folder + ")";
+                e.Cancel = true;
+                break;
             }
+            LastProcessedFolder = DualityWork.DualityFolders[i];
+            var needsProcessing = LastProcessedFolder.NeedsProcessing();
+            if (needsProcessing) {
+                ErrorMessage = LastProcessedFolder.Process();
+            }
+            if (i + 1 == DualityWork.DualityFolders.Count) {
+                AllDone = ErrorMessage.Length == 0;
+            }
+            worker.ReportProgress((i + 1) * 100 / DualityWork.DualityFolders.Count);
+            if (ErrorMessage.Length != 0) {
+                break;
+            }
+            if (!needsProcessing) { continue; }
+            File.Delete(WorkFileName);
+            DualityWork.Save(WorkFileName);
+            Thread.Sleep(50);
+        }
+    }
+
+    private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+        var worker = sender as BackgroundWorker;
+        if (worker == null) {
+            TextBox.Text = "ERROR: background worker got lost";
+            TextBox.Foreground = Brushes.Red;
+            return;
         }
 
-        public void ResetError() {
-            vErrorMessage = "";
-            vTextBox.Foreground = Brushes.Black;
-            vAllDone = false;
+        if (worker.CancellationPending) {
+            TextBox.Text = "Stopped";
+        } else if (ErrorMessage.Length != 0) {
+            TextBox.Text = "ERROR: " + ErrorMessage;
+            TextBox.Foreground = Brushes.Red;
+        } else if (AllDone) {
+            TextBox.Text = "Everything is fine";
+        } else {
+            TextBox.Text = e.ProgressPercentage + "% completed (Processed: " + LastProcessedFolder.Folder + ")";
         }
+    }
+
+    public void ResetError() {
+        ErrorMessage = "";
+        TextBox.Foreground = Brushes.Black;
+        AllDone = false;
     }
 }

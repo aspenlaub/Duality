@@ -6,22 +6,22 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test {
-    [TestClass]
-    public class DualityFoldersSecretTest {
-        private readonly IContainer vContainer;
+namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test;
 
-        public DualityFoldersSecretTest() {
-            vContainer = new ContainerBuilder().UsePegh(new DummyCsArgumentPrompter()).Build();
-        }
+[TestClass]
+public class DualityFoldersSecretTest {
+    private readonly IContainer Container;
 
-        [TestMethod]
-        public async Task CanGetSecretDualityFolders() {
-            var secret = new DualityFoldersSecret();
-            var errorsAndInfos = new ErrorsAndInfos();
-            var secretDualityFolders = await vContainer.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
-            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
-            Assert.IsTrue(secretDualityFolders.Count >= 10);
-        }
+    public DualityFoldersSecretTest() {
+        Container = new ContainerBuilder().UsePegh("Duality", new DummyCsArgumentPrompter()).Build();
+    }
+
+    [TestMethod]
+    public async Task CanGetSecretDualityFolders() {
+        var secret = new DualityFoldersSecret();
+        var errorsAndInfos = new ErrorsAndInfos();
+        var secretDualityFolders = await Container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
+        Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
+        Assert.IsTrue(secretDualityFolders.Count >= 10);
     }
 }
