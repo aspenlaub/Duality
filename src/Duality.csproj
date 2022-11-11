@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <AssemblyName>Aspenlaub.Net.GitHub.CSharp.Duality</AssemblyName>
     <RootNamespace>Aspenlaub.Net.GitHub.CSharp.Duality</RootNamespace>
@@ -52,6 +52,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Pegh" Version="2.0.1204.818" />
+    <PackageReference Include="Pegh" Version="2.0.1206.472" />
   </ItemGroup>
 </Project>
