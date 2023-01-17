@@ -57,8 +57,19 @@ public class DualityFolder {
                     var f2 = new FileInfo(OtherFolder + shortFileName);
                     identical = f.Length == f2.Length;
                 } else {
-                    var contents = File.ReadAllBytes(Folder + shortFileName);
-                    var contents2 = File.ReadAllBytes(OtherFolder + shortFileName);
+                    byte[] contents, contents2;
+                    try {
+                        contents = File.ReadAllBytes(Folder + shortFileName);
+                    } catch {
+                        errorMessage = "Could not read " + Folder + shortFileName ;
+                        break;
+                    }
+                    try{
+                        contents2 = File.ReadAllBytes(OtherFolder + shortFileName);
+                    } catch {
+                        errorMessage = "Could not read " + OtherFolder + shortFileName;
+                        break;
+                    }
                     identical = contents.Length == contents2.Length;
                     if (identical) {
                         if (contents.Where((t, i) => t != contents2[i]).Any()) {
