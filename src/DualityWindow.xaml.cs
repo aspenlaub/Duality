@@ -15,7 +15,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality;
 /// </summary>
 // ReSharper disable once UnusedMember.Global
 public partial class DualityWindow {
-    private DualityWorker DualityWorker;
+    private DualityWorker _DualityWorker;
 
     public DualityWindow() {
         InitializeComponent();
@@ -47,31 +47,31 @@ public partial class DualityWindow {
     }
 
     private void CreateWorker(DualityWork work, string workFile) {
-        DualityWorker = new DualityWorker(work, workFile, InfoText);
-        RestartButton_OnClick(DualityWorker, null);
+        _DualityWorker = new DualityWorker(work, workFile, InfoText);
+        RestartButton_OnClick(_DualityWorker, null);
     }
 
     private void CloseButton_OnClick(object sender, RoutedEventArgs e) {
-        DualityWorker?.OnClosing();
+        _DualityWorker?.OnClosing();
         Close();
     }
 
     private void DualityWindow_OnClosing(object sender, CancelEventArgs e) {
-        DualityWorker?.OnClosing();
+        _DualityWorker?.OnClosing();
     }
 
     private void StopButton_OnClick(object sender, RoutedEventArgs e) {
-        if (DualityWorker.WorkerSupportsCancellation) {
-            DualityWorker.CancelAsync();
+        if (_DualityWorker.WorkerSupportsCancellation) {
+            _DualityWorker.CancelAsync();
         }
     }
 
     private void RestartButton_OnClick(object sender, RoutedEventArgs e) {
-        if (DualityWorker.IsBusy) {
+        if (_DualityWorker.IsBusy) {
             return;
         }
 
-        DualityWorker.ResetError();
-        DualityWorker.RunWorkerAsync();
+        _DualityWorker.ResetError();
+        _DualityWorker.RunWorkerAsync();
     }
 }

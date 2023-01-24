@@ -30,7 +30,7 @@ public class DualityWork {
         var fileStream = new FileStream(fileName, FileMode.Open);
         var xmlSerializer = new XmlSerializer(typeof(DualityWork));
         var collection = (DualityWork)xmlSerializer.Deserialize(fileStream);
-        if (collection.ForMachine == ForMachine) {
+        if (collection != null && collection.ForMachine == ForMachine) {
             foreach (var folder in collection.DualityFolders) {
                 DualityFolders.Add(folder);
             }
@@ -40,7 +40,7 @@ public class DualityWork {
     }
 
     public bool Save(string fileName) {
-        if (File.Exists(fileName)) {
+        if (fileName == null || File.Exists(fileName)) {
             return false;
         }
         var streamWriter = new StreamWriter(fileName, false, Encoding.UTF8);

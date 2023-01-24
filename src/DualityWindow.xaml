@@ -4,11 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Duality" Height="73" MaxWidth="870" WindowStyle="ToolWindow" Icon="yinyang.ico" Loaded="DualityWindow_OnLoaded" SizeToContent="WidthAndHeight" Closing="DualityWindow_OnClosing">
-    <StackPanel Orientation="Horizontal">
-        <TextBox HorizontalAlignment="Left" Name="InfoText" Width="Auto" Margin="5" Background="#DDDDDDDD" Text="Stand by.." Padding="15,0,15,0"/>
-        <Button Content="_Stop" Height="24" VerticalAlignment="Top" Margin="5,5,5,5" Name="StopButton" Width="64" Click="StopButton_OnClick" />
-        <Button Content="_Restart" Height="24" VerticalAlignment="Top" Margin="5,5,5,5" Name="RestartButton" Width="64" Click="RestartButton_OnClick" />
-        <Button Content="_Close" Height="24" VerticalAlignment="Top" Margin="5,5,5,5" Name="CloseButton" Width="64" Click="CloseButton_OnClick" />
-    </StackPanel>
+        Title="Duality" Height="Auto" MaxWidth="1000" WindowStyle="ToolWindow" Icon="yinyang.ico" Loaded="DualityWindow_OnLoaded" SizeToContent="WidthAndHeight" Closing="DualityWindow_OnClosing">
+    <Grid Margin="5" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
+            <Button Content="_Stop" Height="24" VerticalAlignment="Top" Margin="5" Name="StopButton" Width="64" Click="StopButton_OnClick" />
+            <Button Content="_Restart" Height="24" VerticalAlignment="Top" Margin="5" Name="RestartButton" Width="64" Click="RestartButton_OnClick" />
+            <Button Content="_Close" Height="24" VerticalAlignment="Top" Margin="5" Name="CloseButton" Width="64" Click="CloseButton_OnClick" />
+        </StackPanel>
+        <TextBox Grid.Column="0" Grid.Row="1" Height="24" HorizontalAlignment="Stretch" Name="InfoText" Width="Auto" Margin="5" Background="#DDDDDDDD" Text="Stand by.." Padding="15,3,15,0"/>
+    </Grid>
 </Window>
