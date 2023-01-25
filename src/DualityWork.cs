@@ -50,9 +50,10 @@ public class DualityWork {
         return true;
     }
 
-    public void UpdateFolders(DualityFolders dualityFolders) {
+    public void UpdateFolders(IList<DualityFolder> dualityFolders) {
         var folders = dualityFolders.Where(x => x.MachineId.ToUpper() == ForMachine.ToUpper()).ToList();
         if (!folders.Any()) { return; }
+
         DualityFolders.ForEach(x => x.Needed = false);
         var newFolders = new List<DualityFolder>();
         foreach (var folder in folders) {

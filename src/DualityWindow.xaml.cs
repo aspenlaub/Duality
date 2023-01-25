@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
@@ -22,33 +24,43 @@ public partial class DualityWindow {
     }
 
     private async void DualityWindow_OnLoaded(object sender, RoutedEventArgs e) {
+        await UpdateWorkAndRun();
+    }
+
+    private async Task UpdateWork() {
         var container = new ContainerBuilder().UsePegh("Duality", new DummyCsArgumentPrompter()).Build();
         if (Environment.MachineName.ToUpper() != "DELTAFLYER") {
-            InfoText.Text = "Sorry, you should not run this program on this machine";
+            StartupInfoText.Text = "Sorry, you should not run this program on this machine";
             return;
         }
+
         var secret = new DualityFoldersSecret();
         var errorsAndInfos = new ErrorsAndInfos();
         var secretDualityFolders = await container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             throw new Exception(errorsAndInfos.ErrorsToString());
         }
+
         var persistenceFolder = await container.Resolve<IFolderResolver>().ResolveAsync(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             throw new Exception(errorsAndInfos.ErrorsToString());
         }
+
         persistenceFolder.CreateIfNecessary();
-        var workFile = persistenceFolder.FullName + @"\DualityWork.xml";
+
+        var folderErrorsAndInfos = new ErrorsAndInfos();
+        foreach (var secretDualityFolder in secretDualityFolders.Where(IsInaccessible)) {
+            folderErrorsAndInfos.Errors.Add($"Folder is inaccessible: {secretDualityFolder.Folder}");
+        }
+        StartupInfoText.Text = folderErrorsAndInfos.ErrorsToString();
+
+        var workFileName = folderErrorsAndInfos.AnyErrors() ? $"DualityWorkPartial{folderErrorsAndInfos.Errors.Count}.xml" : "DualityWork.xml";
+        var workFile = persistenceFolder.FullName + @"\" + workFileName;
         var work = File.Exists(workFile) ? new DualityWork(workFile, Environment.MachineName) : new DualityWork();
-        work.UpdateFolders(secretDualityFolders);
+        work.UpdateFolders(secretDualityFolders.Where(x => !IsInaccessible(x)).ToList());
         File.Delete(workFile);
         work.Save(workFile);
-        CreateWorker(work, workFile);
-    }
-
-    private void CreateWorker(DualityWork work, string workFile) {
         _DualityWorker = new DualityWorker(work, workFile, InfoText);
-        RestartButton_OnClick(_DualityWorker, null);
     }
 
     private void CloseButton_OnClick(object sender, RoutedEventArgs e) {
@@ -61,17 +73,34 @@ public partial class DualityWindow {
     }
 
     private void StopButton_OnClick(object sender, RoutedEventArgs e) {
+        if (_DualityWorker?.IsBusy != true) {
+            return;
+        }
+
         if (_DualityWorker.WorkerSupportsCancellation) {
             _DualityWorker.CancelAsync();
         }
     }
 
-    private void RestartButton_OnClick(object sender, RoutedEventArgs e) {
-        if (_DualityWorker.IsBusy) {
+    private async void RestartButton_OnClick(object sender, RoutedEventArgs e) {
+        await UpdateWorkAndRun();
+    }
+
+    private async Task UpdateWorkAndRun() {
+        if (_DualityWorker?.IsBusy == true) {
             return;
         }
 
+        await UpdateWork();
         _DualityWorker.ResetError();
         _DualityWorker.RunWorkerAsync();
+    }
+
+    private bool IsInaccessible(DualityFolder folder) {
+        try {
+            return !Directory.Exists(folder.Folder);
+        } catch {
+            return true;
+        }
     }
 }

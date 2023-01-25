@@ -8,6 +8,7 @@
     <Grid Margin="5" >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
@@ -16,5 +17,6 @@
             <Button Content="_Close" Height="24" VerticalAlignment="Top" Margin="5" Name="CloseButton" Width="64" Click="CloseButton_OnClick" />
         </StackPanel>
         <TextBox Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Name="InfoText" Width="Auto" Margin="5" Background="#DDDDDDDD" Text="Stand by.." TextWrapping="Wrap" Padding="15,5,15,5"/>
+        <TextBox Grid.Column="0" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Name="StartupInfoText" Width="Auto" Margin="5" Background="#DDDDDDDD" Foreground="Red" Text="Stand by.." TextWrapping="Wrap" Padding="15,5,15,5"/>
     </Grid>
 </Window>

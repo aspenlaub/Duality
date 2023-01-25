@@ -187,7 +187,7 @@ public class DualityTest {
         File.WriteAllText(theFileName, @"This is some text.");
         var timeStamp = new DateTime(2013, 11, 2, 12, 24, 6);
         File.SetLastWriteTime(theFileName, timeStamp);
-        var expectedMessage = "There is " + theFileName + ",\r\nbut that file does not exist in " + testRootFolder.FullName + @"\Machine1\OtherFolder2\H\";
+        var expectedMessage = "There is\r\n" + theFileName + ",\r\nbut that file does not exist in\r\n" + testRootFolder.FullName + @"\Machine1\OtherFolder2\H\";
         Assert.AreEqual(expectedMessage, folder.Process());
         Assert.IsTrue(folder.NeedsProcessing());
         var theOtherFileName = testRootFolder.FullName + @"\Machine1\OtherFolder2\H\A_File.txt";
@@ -197,13 +197,13 @@ public class DualityTest {
         Assert.IsTrue(folder.NeedsProcessing());
         Assert.AreEqual(timeStamp, File.GetLastWriteTime(theOtherFileName));
         File.WriteAllText(theOtherFileName, @"This is some text..");
-        expectedMessage = "The contents (or last-write-time) of " + theFileName + "\r\ndiffers from the contents (lwt) of " + theOtherFileName;
+        expectedMessage = "The contents (or last-write-time) of\r\n" + theFileName + "\r\ndiffers from the contents (lwt) of\r\n" + theOtherFileName;
         Assert.AreEqual(expectedMessage, folder.Process());
         Assert.IsTrue(folder.NeedsProcessing());
         File.WriteAllText(theOtherFileName, @"This is some text.");
         var theRenamedOtherFileName = theOtherFileName.Replace(".txt", ".log");
         File.WriteAllText(theRenamedOtherFileName, @"This is some text.");
-        expectedMessage = "There is " + theRenamedOtherFileName + ",\r\nbut that file does not exist in " + testRootFolder.FullName + @"\Machine1\Folder2\H\";
+        expectedMessage = "There is\r\n" + theRenamedOtherFileName + ",\r\nbut that file does not exist in\r\n" + testRootFolder.FullName + @"\Machine1\Folder2\H\";
         Assert.AreEqual(expectedMessage, folder.Process());
         Assert.IsTrue(folder.NeedsProcessing());
         File.Delete(theFileName);

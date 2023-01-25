@@ -48,7 +48,7 @@ public class DualityFolder {
                     break;
                 }
                 if (!File.Exists(OtherFolder + shortFileName)) {
-                    errorMessage = "There is " + Folder + shortFileName + ",\r\nbut that file does not exist in " + OtherFolder;
+                    errorMessage = "There is\r\n" + Folder + shortFileName + ",\r\nbut that file does not exist in\r\n" + OtherFolder;
                     break;
                 }
                 bool identical;
@@ -86,7 +86,7 @@ public class DualityFolder {
                     }
                     continue;
                 }
-                errorMessage = "The contents (or last-write-time) of " + Folder + shortFileName + "\r\ndiffers from the contents (lwt) of " + OtherFolder + shortFileName;
+                errorMessage = "The contents (or last-write-time) of\r\n" + Folder + shortFileName + "\r\ndiffers from the contents (lwt) of\r\n" + OtherFolder + shortFileName;
                 break;
             }
         }
@@ -103,7 +103,7 @@ public class DualityFolder {
                     continue;
                 }
 
-                errorMessage = "There is " + OtherFolder + shortFileName + ",\r\nbut that file does not exist in " + Folder;
+                errorMessage = "There is\r\n" + OtherFolder + shortFileName + ",\r\nbut that file does not exist in\r\n" + Folder;
                 break;
             }
         }
@@ -120,7 +120,7 @@ public class DualityFolder {
     }
 
     public List<string> TopSubFolders() {
-        var topSubDirs = new List<string>() { ".\\" };
+        var topSubDirs = new List<string> { ".\\" };
         // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (var dir in Directory.EnumerateDirectories(Folder, "*", SearchOption.TopDirectoryOnly)) {
             var subDir = dir.Substring(Folder.Length);
