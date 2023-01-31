@@ -129,4 +129,13 @@ public class DualityFolder {
         }
         return topSubDirs;
     }
+
+    public override string ToString() {
+        int charsToOmit;
+        for (charsToOmit = 0; charsToOmit <= OtherFolder.Length
+            && Folder[Folder.Length - charsToOmit - 1] == OtherFolder[OtherFolder.Length - charsToOmit - 1]; charsToOmit++) {
+        }
+
+        return $"{Folder} ⇔ {OtherFolder.Substring(0, OtherFolder.Length - charsToOmit)}";
+    }
 }

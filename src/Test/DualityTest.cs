@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -144,6 +144,14 @@ public class DualityTest {
         Assert.AreEqual(timeStamp, work.DualityFolders[0].LastCheckedAt);
         File.Delete(fileName);
         Assert.IsFalse(File.Exists(fileName));
+    }
+
+    [TestMethod]
+    public void ToStringNicelyShowsDualityFolder() {
+        var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
+        var masterFolder = TempFolder(true).FullName;
+        Assert.AreEqual(masterFolder + @"\Machine1\Folder\ ⇔ " + masterFolder + @"\Machine1\Other", folders[0].ToString());
+        Assert.AreEqual(masterFolder + @"\Machine1\Folder2\ ⇔ " + masterFolder + @"\Machine1\Other", folders[1].ToString());
     }
 
     private void CopyTemplateTestFileSystemTo(IFolder testRootFolder) {
