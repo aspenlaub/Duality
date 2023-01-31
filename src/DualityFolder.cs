@@ -127,6 +127,15 @@ public class DualityFolder {
             if (!(Directory.Exists(Folder + subDir) || Directory.Exists(OtherFolder + subDir))) { continue; }
             topSubDirs.Add(subDir + '\\');
         }
+        // ReSharper disable once LoopCanBePartlyConvertedToQuery
+        foreach (var dir in Directory.EnumerateDirectories(OtherFolder, "*", SearchOption.TopDirectoryOnly)) {
+            var subDir = dir.Substring(OtherFolder.Length);
+            if (topSubDirs.Contains(subDir + '\\')) {
+                continue;
+            }
+            if (!(Directory.Exists(Folder + subDir) || Directory.Exists(OtherFolder + subDir))) { continue; }
+            topSubDirs.Add(subDir + '\\');
+        }
         return topSubDirs;
     }
 

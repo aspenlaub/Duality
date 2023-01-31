@@ -113,7 +113,7 @@ public class DualityTest {
         var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
         var work = new DualityWork { ForMachine = folders[0].MachineId };
         work.UpdateFolders(folders);
-        Assert.AreEqual(6, work.DualityFolders.Count);
+        Assert.AreEqual(8, work.DualityFolders.Count);
     }
 
     [TestMethod]
@@ -121,7 +121,7 @@ public class DualityTest {
         var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
         var work = new DualityWork { ForMachine = folders[0].MachineId };
         work.UpdateFolders(folders);
-        Assert.AreEqual(6, work.DualityFolders.Count);
+        Assert.AreEqual(8, work.DualityFolders.Count);
         var timeStamp = new DateTime(2013, 11, 3, 14, 20, 0);
         work.DualityFolders.ForEach(x => x.LastCheckedAt = timeStamp);
         work.UpdateFolders(folders);
@@ -188,9 +188,8 @@ public class DualityTest {
         var folders = CreateTestFoldersOnTwoMachines(testRootFolder, new DateTime(0));
         var work = new DualityWork { ForMachine = folders[0].MachineId };
         work.UpdateFolders(folders);
-        var folder = work.DualityFolders[5];
-        Assert.AreEqual("", folder.Process());
-        Assert.IsTrue(folder.NeedsProcessing());
+        var folder = work.DualityFolders.Single(f => f.Folder.EndsWith(@"\H\"));
+
         var theFileName = testRootFolder.FullName + @"\Machine1\Folder2\H\A_File.txt";
         File.WriteAllText(theFileName, @"This is some text.");
         var timeStamp = new DateTime(2013, 11, 2, 12, 24, 6);
@@ -198,22 +197,26 @@ public class DualityTest {
         var expectedMessage = "There is\r\n" + theFileName + ",\r\nbut that file does not exist in\r\n" + testRootFolder.FullName + @"\Machine1\OtherFolder2\H\";
         Assert.AreEqual(expectedMessage, folder.Process());
         Assert.IsTrue(folder.NeedsProcessing());
+
         var theOtherFileName = testRootFolder.FullName + @"\Machine1\OtherFolder2\H\A_File.txt";
         File.WriteAllText(theOtherFileName, @"This is some text.");
         File.SetLastWriteTime(theOtherFileName, new DateTime(2013, 11, 6, 22, 6, 24));
         Assert.AreEqual("", folder.Process());
         Assert.IsTrue(folder.NeedsProcessing());
+
         Assert.AreEqual(timeStamp, File.GetLastWriteTime(theOtherFileName));
         File.WriteAllText(theOtherFileName, @"This is some text..");
         expectedMessage = "The contents (or last-write-time) of\r\n" + theFileName + "\r\ndiffers from the contents (lwt) of\r\n" + theOtherFileName;
         Assert.AreEqual(expectedMessage, folder.Process());
         Assert.IsTrue(folder.NeedsProcessing());
+
         File.WriteAllText(theOtherFileName, @"This is some text.");
         var theRenamedOtherFileName = theOtherFileName.Replace(".txt", ".log");
         File.WriteAllText(theRenamedOtherFileName, @"This is some text.");
         expectedMessage = "There is\r\n" + theRenamedOtherFileName + ",\r\nbut that file does not exist in\r\n" + testRootFolder.FullName + @"\Machine1\Folder2\H\";
         Assert.AreEqual(expectedMessage, folder.Process());
         Assert.IsTrue(folder.NeedsProcessing());
+
         File.Delete(theFileName);
         Assert.IsFalse(File.Exists(theFileName));
         File.Delete(theOtherFileName);
