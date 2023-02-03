@@ -50,7 +50,7 @@ public partial class DualityWindow {
 
         var folderErrorsAndInfos = new ErrorsAndInfos();
         foreach (var secretDualityFolder in secretDualityFolders.Where(IsInaccessible)) {
-            folderErrorsAndInfos.Errors.Add($"Folder is inaccessible: {secretDualityFolder.Folder}");
+            folderErrorsAndInfos.Errors.Add($"Folder/-s is/are inaccessible: {secretDualityFolder}");
         }
         StartupInfoText.Text = folderErrorsAndInfos.ErrorsToString();
 
@@ -98,7 +98,7 @@ public partial class DualityWindow {
 
     private bool IsInaccessible(DualityFolder folder) {
         try {
-            return !Directory.Exists(folder.Folder);
+            return !Directory.Exists(folder.Folder) || !Directory.Exists(folder.OtherFolder);
         } catch {
             return true;
         }
