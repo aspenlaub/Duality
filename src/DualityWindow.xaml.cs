@@ -74,6 +74,7 @@ public partial class DualityWindow {
 
     private void StopButton_OnClick(object sender, RoutedEventArgs e) {
         if (_DualityWorker?.IsBusy != true) {
+            StartupInfoText.Text = $"Duality worker is not busy ({DateTime.Now.ToLongTimeString()})..";
             return;
         }
 
@@ -88,6 +89,7 @@ public partial class DualityWindow {
 
     private async Task UpdateWorkAndRun() {
         if (_DualityWorker?.IsBusy == true) {
+            StartupInfoText.Text = $"Duality worker is busy, please press Stop and wait ({DateTime.Now.ToLongTimeString()})..";
             return;
         }
 
