@@ -34,11 +34,17 @@ public class DualityFolder {
 
     public string Process() {
         var errorMessage = "";
-        if (!Directory.Exists(Folder)) {
-            Directory.CreateDirectory(Folder);
-        }
-        if (!Directory.Exists(OtherFolder)) {
-            Directory.CreateDirectory(OtherFolder);
+        if (!Folder.EndsWith("\\")) {
+            errorMessage = $"Folder does not end with a backslash: {Folder}";
+        } else {
+            if (!Directory.Exists(Folder)) {
+                Directory.CreateDirectory(Folder);
+            }
+            if (!OtherFolder.EndsWith("\\")) {
+                errorMessage = $"Other folder does not end with a backslash: {OtherFolder}";
+            } else if (!Directory.Exists(OtherFolder)) {
+                Directory.CreateDirectory(OtherFolder);
+            }
         }
         if (errorMessage.Length == 0) {
             var searchOption = Folder.Substring(Folder.Length - 2) == ".\\" ? SearchOption.TopDirectoryOnly : SearchOption.AllDirectories;

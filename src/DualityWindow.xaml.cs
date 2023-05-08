@@ -29,7 +29,7 @@ public partial class DualityWindow {
 
     private async Task UpdateWork() {
         var container = new ContainerBuilder().UsePegh("Duality", new DummyCsArgumentPrompter()).Build();
-        if (Environment.MachineName.ToUpper() != "DELTAFLYER") {
+        if (Environment.MachineName.ToUpper() != "DELTAFLYER" && Environment.MachineName.ToUpper() != "NCC-1701D") {
             StartupInfoText.Text = "Sorry, you should not run this program on this machine";
             return;
         }
@@ -94,8 +94,8 @@ public partial class DualityWindow {
         }
 
         await UpdateWork();
-        _DualityWorker.ResetError();
-        _DualityWorker.RunWorkerAsync();
+        _DualityWorker?.ResetError();
+        _DualityWorker?.RunWorkerAsync();
     }
 
     private bool IsInaccessible(DualityFolder folder) {
