@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
@@ -45,5 +46,12 @@ public class DualityFolders : List<DualityFolder>, ISecretResult<DualityFolders>
         var clone = new DualityFolders();
         clone.AddRange(this);
         return clone;
+    }
+
+    public DualityFolders ForThisMachine() {
+        var foldersForThisMachine = new DualityFolders();
+        var machineId = Environment.MachineName.ToUpper();
+        foldersForThisMachine.AddRange(this.Where(x => x.MachineId.ToUpper() == machineId));
+        return foldersForThisMachine;
     }
 }

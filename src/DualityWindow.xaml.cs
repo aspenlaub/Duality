@@ -29,16 +29,18 @@ public partial class DualityWindow {
 
     private async Task UpdateWork() {
         var container = new ContainerBuilder().UsePegh("Duality", new DummyCsArgumentPrompter()).Build();
-        if (Environment.MachineName.ToUpper() != "DELTAFLYER" && Environment.MachineName.ToUpper() != "NCC-1701D") {
-            StartupInfoText.Text = "Sorry, you should not run this program on this machine";
-            return;
-        }
 
         var secret = new DualityFoldersSecret();
         var errorsAndInfos = new ErrorsAndInfos();
         var secretDualityFolders = await container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             throw new Exception(errorsAndInfos.ErrorsToString());
+        }
+
+        secretDualityFolders = secretDualityFolders.ForThisMachine();
+        if (!secretDualityFolders.Any()) {
+            StartupInfoText.Text = "No duality folders have been configured for this machine";
+            return;
         }
 
         var persistenceFolder = await container.Resolve<IFolderResolver>().ResolveAsync(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
