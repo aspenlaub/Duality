@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -51,18 +52,50 @@ public partial class DualityWindow {
         persistenceFolder.CreateIfNecessary();
 
         var folderErrorsAndInfos = new ErrorsAndInfos();
-        foreach (var secretDualityFolder in secretDualityFolders.Where(IsInaccessible)) {
-            folderErrorsAndInfos.Errors.Add($"Folder/-s is/are inaccessible: {secretDualityFolder}");
+        var inaccessibleFolders = InaccessibleFolders(secretDualityFolders, out var numberOfSimilarFolders);
+        foreach (var inaccessibleFolder in inaccessibleFolders) {
+            folderErrorsAndInfos.Errors.Add($"Folder/-s is/are inaccessible: {inaccessibleFolder}");
+        }
+        if (numberOfSimilarFolders > 0) {
+            folderErrorsAndInfos.Errors.Add($"{numberOfSimilarFolders} folders with similar location/-s are also inaccessible");
         }
         StartupInfoText.Text = folderErrorsAndInfos.ErrorsToString();
 
         var workFileName = folderErrorsAndInfos.AnyErrors() ? $"DualityWorkPartial{folderErrorsAndInfos.Errors.Count}.xml" : "DualityWork.xml";
         var workFile = persistenceFolder.FullName + @"\" + workFileName;
         var work = File.Exists(workFile) ? new DualityWork(workFile, Environment.MachineName) : new DualityWork();
-        work.UpdateFolders(secretDualityFolders.Where(x => !IsInaccessible(x)).ToList());
+        work.UpdateFolders(secretDualityFolders.Where(x => !FolderIsInaccessible(x) && !OtherFolderIsInaccessible(x)).ToList());
         File.Delete(workFile);
         work.Save(workFile);
         _DualityWorker = new DualityWorker(work, workFile, InfoText);
+    }
+
+    private List<string> InaccessibleFolders(DualityFolders secretDualityFolders, out int numberOfSimilarFolders) {
+        numberOfSimilarFolders = 0;
+        const int numberOfSuffixCharacters = 24;
+        var inaccessibleFolders = secretDualityFolders.Where(FolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.Folder).ToList();
+        inaccessibleFolders.AddRange(secretDualityFolders.Where(OtherFolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.OtherFolder));
+        inaccessibleFolders = inaccessibleFolders.Distinct().ToList();
+        for (var i = 1; i < inaccessibleFolders.Count; i++) {
+            if (inaccessibleFolders[i].Length < numberOfSuffixCharacters) {
+                continue;
+            }
+            var pos = inaccessibleFolders[i].IndexOf("\\", numberOfSuffixCharacters, StringComparison.InvariantCulture);
+            if (pos < 0) {
+                continue;
+            }
+            for (var j = 0; j < i; j++) {
+                if (inaccessibleFolders[j].Length < pos
+                        ||  inaccessibleFolders[i][..numberOfSuffixCharacters] != inaccessibleFolders[j][..numberOfSuffixCharacters]) {
+                    continue;
+                }
+
+                inaccessibleFolders[i] = "";
+                numberOfSimilarFolders ++;
+                break;
+            }
+        }
+        return inaccessibleFolders.Where(x => !string.IsNullOrEmpty(x)).ToList();
     }
 
     private void CloseButton_OnClick(object sender, RoutedEventArgs e) {
@@ -100,9 +133,17 @@ public partial class DualityWindow {
         _DualityWorker?.RunWorkerAsync();
     }
 
-    private bool IsInaccessible(DualityFolder folder) {
+    private bool FolderIsInaccessible(DualityFolder folder) {
         try {
-            return !Directory.Exists(folder.Folder) || !Directory.Exists(folder.OtherFolder);
+            return !Directory.Exists(folder.Folder);
+        } catch {
+            return true;
+        }
+    }
+
+    private bool OtherFolderIsInaccessible(DualityFolder folder) {
+        try {
+            return !Directory.Exists(folder.OtherFolder);
         } catch {
             return true;
         }

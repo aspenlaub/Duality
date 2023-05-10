@@ -8,8 +8,8 @@
     <Grid Margin="5" >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
             <Button Content="_Stop" Height="24" VerticalAlignment="Top" Margin="5" Name="StopButton" Width="64" Click="StopButton_OnClick" />
