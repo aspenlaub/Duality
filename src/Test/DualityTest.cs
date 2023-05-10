@@ -206,7 +206,7 @@ public class DualityTest {
 
         Assert.AreEqual(timeStamp, File.GetLastWriteTime(theOtherFileName));
         File.WriteAllText(theOtherFileName, @"This is some text..");
-        expectedMessage = "The contents (or last-write-time) of\r\n" + theFileName + "\r\ndiffers from the contents (lwt) of\r\n" + theOtherFileName;
+        expectedMessage = "The contents and last-write-time of\r\n" + theFileName + "\r\ndiffers from the contents/lwt of\r\n" + theOtherFileName;
         Assert.AreEqual(expectedMessage, folder.Process());
         Assert.IsTrue(folder.NeedsProcessing());
 
