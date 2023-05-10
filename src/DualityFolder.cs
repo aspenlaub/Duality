@@ -83,8 +83,8 @@ public class DualityFolder {
                         }
                     }
                 }
+                DateTime timeStamp = File.GetLastWriteTime(Folder + shortFileName), timeStamp2 = File.GetLastWriteTime(OtherFolder + shortFileName);
                 if (identical) {
-                    DateTime timeStamp = File.GetLastWriteTime(Folder + shortFileName), timeStamp2 = File.GetLastWriteTime(OtherFolder + shortFileName);
                     if (timeStamp > timeStamp2) {
                         File.SetLastWriteTime(Folder + shortFileName, timeStamp2);
                     } else if (timeStamp < timeStamp2) {
@@ -92,7 +92,12 @@ public class DualityFolder {
                     }
                     continue;
                 }
-                errorMessage = "The contents (or last-write-time) of\r\n" + Folder + shortFileName + "\r\ndiffers from the contents (lwt) of\r\n" + OtherFolder + shortFileName;
+
+                if (timeStamp == timeStamp2) {
+                    errorMessage = "The contents of\r\n" + Folder + shortFileName + "\r\ndiffers from the contents of\r\n" + OtherFolder + shortFileName;
+                } else {
+                    errorMessage = "The contents and last-write-time of\r\n" + Folder + shortFileName + "\r\ndiffers from the contents/lwt of\r\n" + OtherFolder + shortFileName;
+                }
                 break;
             }
         }
