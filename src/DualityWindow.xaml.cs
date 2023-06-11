@@ -119,6 +119,8 @@ public partial class DualityWindow {
     }
 
     private async void RestartButton_OnClick(object sender, RoutedEventArgs e) {
+        InfoText.Text = "Restarting, stand by..";
+        StartupInfoText.Text = "Restarting, stand by..";
         await UpdateWorkAndRun();
     }
 
