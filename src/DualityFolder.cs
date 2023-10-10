@@ -53,6 +53,14 @@ public class DualityFolder {
                     errorMessage = "Something is wrong, file not found: " + Folder + shortFileName;
                     break;
                 }
+                if ((new FileInfo(Folder + shortFileName).Attributes & FileAttributes.Hidden) != 0) {
+                    errorMessage = "File is hidden: " + Folder + shortFileName;
+                    break;
+                }
+                if ((new FileInfo(Folder + shortFileName).Attributes & FileAttributes.System) != 0) {
+                    errorMessage = "File is a system file: " + Folder + shortFileName;
+                    break;
+                }
                 if (!File.Exists(OtherFolder + shortFileName)) {
                     errorMessage = "There is\r\n" + Folder + shortFileName + ",\r\nbut that file does not exist in\r\n" + OtherFolder;
                     break;
