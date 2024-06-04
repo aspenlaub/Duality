@@ -8,17 +8,12 @@ using System.Xml.Serialization;
 namespace Aspenlaub.Net.GitHub.CSharp.Duality;
 
 [XmlRoot("Folders", Namespace = "http://www.viperfisch.de")]
-public class DualityWork {
+public class DualityWork() {
     [XmlElement("Folder")]
-    public List<DualityFolder> DualityFolders { get; set; }
+    public List<DualityFolder> DualityFolders { get; set; } = new();
 
     [XmlElement("ForMachine")]
-    public string ForMachine { get; set; }
-
-    public DualityWork() {
-        DualityFolders = new List<DualityFolder>();
-        ForMachine = Environment.MachineName;
-    }
+    public string ForMachine { get; set; } = Environment.MachineName;
 
     public DualityWork(string fileName, string forMachine)
         : this() {

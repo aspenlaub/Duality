@@ -10,11 +10,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test;
 
 [TestClass]
 public class DualityFoldersSecretTest {
-    private readonly IContainer _Container;
-
-    public DualityFoldersSecretTest() {
-        _Container = new ContainerBuilder().UsePegh("Duality", new DummyCsArgumentPrompter()).Build();
-    }
+    private readonly IContainer _Container = new ContainerBuilder().UsePegh("Duality", new DummyCsArgumentPrompter()).Build();
 
     [TestMethod]
     public async Task CanGetSecretDualityFolders() {

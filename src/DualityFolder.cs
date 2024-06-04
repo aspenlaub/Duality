@@ -33,6 +33,11 @@ public class DualityFolder {
     }
 
     public string Process() {
+        var errorMessage = Process(false);
+        return string.IsNullOrEmpty(errorMessage) ? Process(true) : errorMessage;
+    }
+
+    public string Process(bool checkContents) {
         var errorMessage = "";
         if (!Folder.EndsWith("\\")) {
             errorMessage = $"Folder does not end with a backslash: {Folder}";
@@ -65,6 +70,11 @@ public class DualityFolder {
                     errorMessage = "There is\r\n" + Folder + shortFileName + ",\r\nbut that file does not exist in\r\n" + OtherFolder;
                     break;
                 }
+
+                if (!checkContents) {
+                    continue;
+                }
+
                 bool identical;
                 var f = new FileInfo(Folder + shortFileName);
                 if (f.Length >= 300000000) {
@@ -127,7 +137,7 @@ public class DualityFolder {
             }
         }
 
-        if (errorMessage.Length != 0) {
+        if (errorMessage.Length != 0 || !checkContents) {
             return errorMessage;
         }
 
