@@ -10,7 +10,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality;
 [XmlRoot("Folders", Namespace = "http://www.viperfisch.de")]
 public class DualityWork() {
     [XmlElement("Folder")]
-    public List<DualityFolder> DualityFolders { get; set; } = new();
+    public List<DualityFolder> DualityFolders { get; set; } = [];
 
     [XmlElement("ForMachine")]
     public string ForMachine { get; set; } = Environment.MachineName;

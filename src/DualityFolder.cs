@@ -53,7 +53,16 @@ public class DualityFolder {
         }
         if (errorMessage.Length == 0) {
             var searchOption = Folder.Substring(Folder.Length - 2) == ".\\" ? SearchOption.TopDirectoryOnly : SearchOption.AllDirectories;
-            foreach (var shortFileName in from fileName in Directory.EnumerateFiles(Folder, "*", searchOption) where !fileName.EndsWith(".HDP") select fileName.Substring(Folder.Length)) {
+            List<string> shortFileNames;
+            try {
+                shortFileNames = (from fileName in Directory.EnumerateFiles(Folder, "*", searchOption)
+                      where !fileName.EndsWith(".HDP")
+                      select fileName.Substring(Folder.Length)).ToList();
+            } catch (Exception) {
+                errorMessage = "Something is wrong, could not list files in: " + Folder;
+                shortFileNames = [];
+            }
+            foreach (var shortFileName in shortFileNames) {
                 if (!File.Exists(Folder + shortFileName)) {
                     errorMessage = "Something is wrong, file not found: " + Folder + shortFileName;
                     break;

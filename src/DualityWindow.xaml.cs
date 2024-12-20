@@ -24,6 +24,7 @@ public partial class DualityWindow {
         InitializeComponent();
     }
 
+    // ReSharper disable once AsyncVoidMethod
     private async void DualityWindow_OnLoaded(object sender, RoutedEventArgs e) {
         await UpdateWorkAndRun();
     }
@@ -118,6 +119,7 @@ public partial class DualityWindow {
         }
     }
 
+    // ReSharper disable once AsyncVoidMethod
     private async void RestartButton_OnClick(object sender, RoutedEventArgs e) {
         InfoText.Text = "Restarting, stand by..";
         StartupInfoText.Text = "Restarting, stand by..";
