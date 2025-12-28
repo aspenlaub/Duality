@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Duality.csproj" />
+  <Project Path="Test/Duality.Test.csproj" />
+</Solution>
