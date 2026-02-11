@@ -13,7 +13,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test;
 [TestClass]
 public class DualityTest {
     private IFolder TempFolder(bool master) {
-        var folder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(DualityTest) + (master ? "Master" : ""));
+        IFolder folder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(DualityTest) + (master ? "Master" : ""));
         folder.CreateIfNecessary();
         if (!master) { return folder; }
 
@@ -62,7 +62,7 @@ public class DualityTest {
             @"\NextCheckIsWithinCheckInterval\Machine2\OtherFolder\F",
             @"\NextCheckIsWithinCheckInterval\Machine2\Persistence",
         };
-        foreach (var subFolder in subFolders.Select(f => folder.SubFolder(f))) {
+        foreach (IFolder subFolder in subFolders.Select(f => folder.SubFolder(f))) {
             subFolder.CreateIfNecessary();
         }
         return folder;
@@ -70,13 +70,13 @@ public class DualityTest {
 
     [TestMethod]
     public void CanSaveAndLoadFolders() {
-        var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
-        var fileName = TempFolder(false).FullName + @"\CanSaveAndLoadFolders.xml";
+        DualityFolders folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
+        string fileName = TempFolder(false).FullName + @"\CanSaveAndLoadFolders.xml";
         File.Delete(fileName);
         Assert.IsFalse(File.Exists(fileName));
         folders.Save(fileName);
         var folders2 = new DualityFolders(fileName);
-        Assert.AreEqual(folders.Count, folders2.Count);
+        Assert.HasCount(folders.Count, folders2);
         File.Delete(fileName);
         Assert.IsFalse(File.Exists(fileName));
     }
@@ -90,10 +90,10 @@ public class DualityTest {
 
     protected static List<DualityFolder> CreateTestFolders(string id, uint expectedSources, IFolder testRootFolder, DateTime checkInterval) {
         uint actualSources = 0;
-        var machineRootFolder = testRootFolder.SubFolder(id).FullName + '\\';
+        string machineRootFolder = testRootFolder.SubFolder(id).FullName + '\\';
         var result = new List<DualityFolder>();
         // ReSharper disable once LoopCanBePartlyConvertedToQuery
-        foreach (var dir in Directory.EnumerateDirectories(machineRootFolder, "Folder*", SearchOption.TopDirectoryOnly)) {
+        foreach (string dir in Directory.EnumerateDirectories(machineRootFolder, "Folder*", SearchOption.TopDirectoryOnly)) {
             var folder = new DualityFolder {
                 MachineId = id,
                 Folder = dir + '\\',
@@ -110,18 +110,18 @@ public class DualityTest {
 
     [TestMethod]
     public void CanCreateWorkForMachine1() {
-        var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
+        DualityFolders folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
         var work = new DualityWork { ForMachine = folders[0].MachineId };
         work.UpdateFolders(folders);
-        Assert.AreEqual(8, work.DualityFolders.Count);
+        Assert.HasCount(8, work.DualityFolders);
     }
 
     [TestMethod]
     public void CanUpdateWorkForMachine1() {
-        var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
+        DualityFolders folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
         var work = new DualityWork { ForMachine = folders[0].MachineId };
         work.UpdateFolders(folders);
-        Assert.AreEqual(8, work.DualityFolders.Count);
+        Assert.HasCount(8, work.DualityFolders);
         var timeStamp = new DateTime(2013, 11, 3, 14, 20, 0);
         work.DualityFolders.ForEach(x => x.LastCheckedAt = timeStamp);
         work.UpdateFolders(folders);
@@ -130,17 +130,17 @@ public class DualityTest {
 
     [TestMethod]
     public void CanSaveAndLoadWorkForMachine1() {
-        var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
+        DualityFolders folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
         var work = new DualityWork { ForMachine = folders[0].MachineId };
         work.UpdateFolders(folders);
-        var timeStamp = DateTime.Now;
+        DateTime timeStamp = DateTime.Now;
         work.DualityFolders[0].LastCheckedAt = timeStamp;
-        var fileName = TempFolder(false).FullName + @"\CanSaveAndLoadWorkForMachine1.xml";
+        string fileName = TempFolder(false).FullName + @"\CanSaveAndLoadWorkForMachine1.xml";
         File.Delete(fileName);
         Assert.IsFalse(File.Exists(fileName));
         work.Save(fileName);
         var work2 = new DualityWork(fileName, folders[0].MachineId);
-        Assert.AreEqual((object) work.DualityFolders.Count, work2.DualityFolders.Count);
+        Assert.HasCount(work.DualityFolders.Count, work2.DualityFolders);
         Assert.AreEqual(timeStamp, work.DualityFolders[0].LastCheckedAt);
         File.Delete(fileName);
         Assert.IsFalse(File.Exists(fileName));
@@ -148,8 +148,8 @@ public class DualityTest {
 
     [TestMethod]
     public void ToStringNicelyShowsDualityFolder() {
-        var folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
-        var masterFolder = TempFolder(true).FullName;
+        DualityFolders folders = CreateTestFoldersOnTwoMachines(TempFolder(true), new DateTime(0));
+        string masterFolder = TempFolder(true).FullName;
         Assert.AreEqual(masterFolder + @"\Machine1\Folder\ ⇔ " + masterFolder + @"\Machine1\Other", folders[0].ToString());
         Assert.AreEqual(masterFolder + @"\Machine1\Folder2\ ⇔ " + masterFolder + @"\Machine1\Other", folders[1].ToString());
     }
@@ -169,12 +169,12 @@ public class DualityTest {
             throw new ArgumentNullException(nameof(destDirName));
         }
         var dir = new DirectoryInfo(sourceDirName);
-        var dirs = dir.GetDirectories();
+        DirectoryInfo[] dirs = dir.GetDirectories();
         if (!dir.Exists) { throw new DirectoryNotFoundException("Source directory does not exist or could not be found: " + sourceDirName); }
 
         if (!Directory.Exists(destDirName)) { Directory.CreateDirectory(destDirName); }
-        foreach (var subDir in dirs) {
-            var tempPath = Path.Combine(destDirName, subDir.Name);
+        foreach (DirectoryInfo subDir in dirs) {
+            string tempPath = Path.Combine(destDirName, subDir.Name);
             CopyFolderRecursivelyButNoFiles(subDir.FullName, tempPath);
         }
     }
@@ -182,23 +182,23 @@ public class DualityTest {
     [TestMethod]
     public void CanDoBasicProcessing() {
         var errorsAndInfos = new ErrorsAndInfos();
-        var testRootFolder = TempFolder(true).SubFolder("CanDoBasicProcessing");
+        IFolder testRootFolder = TempFolder(true).SubFolder("CanDoBasicProcessing");
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
         CopyTemplateTestFileSystemTo(testRootFolder);
-        var folders = CreateTestFoldersOnTwoMachines(testRootFolder, new DateTime(0));
+        DualityFolders folders = CreateTestFoldersOnTwoMachines(testRootFolder, new DateTime(0));
         var work = new DualityWork { ForMachine = folders[0].MachineId };
         work.UpdateFolders(folders);
-        var folder = work.DualityFolders.Single(f => f.Folder.EndsWith(@"\H\"));
+        DualityFolder folder = work.DualityFolders.Single(f => f.Folder.EndsWith(@"\H\"));
 
-        var theFileName = testRootFolder.FullName + @"\Machine1\Folder2\H\A_File.txt";
+        string theFileName = testRootFolder.FullName + @"\Machine1\Folder2\H\A_File.txt";
         File.WriteAllText(theFileName, @"This is some text.");
         var timeStamp = new DateTime(2013, 11, 2, 12, 24, 6);
         File.SetLastWriteTime(theFileName, timeStamp);
-        var expectedMessage = "There is\r\n" + theFileName + ",\r\nbut that file does not exist in\r\n" + testRootFolder.FullName + @"\Machine1\OtherFolder2\H\";
+        string expectedMessage = "There is\r\n" + theFileName + ",\r\nbut that file does not exist in\r\n" + testRootFolder.FullName + @"\Machine1\OtherFolder2\H\";
         Assert.AreEqual(expectedMessage, folder.Process());
         Assert.IsTrue(folder.NeedsProcessing());
 
-        var theOtherFileName = testRootFolder.FullName + @"\Machine1\OtherFolder2\H\A_File.txt";
+        string theOtherFileName = testRootFolder.FullName + @"\Machine1\OtherFolder2\H\A_File.txt";
         File.WriteAllText(theOtherFileName, @"This is some text.");
         File.SetLastWriteTime(theOtherFileName, new DateTime(2013, 11, 6, 22, 6, 24));
         Assert.AreEqual("", folder.Process());
@@ -211,7 +211,7 @@ public class DualityTest {
         Assert.IsTrue(folder.NeedsProcessing());
 
         File.WriteAllText(theOtherFileName, @"This is some text.");
-        var theRenamedOtherFileName = theOtherFileName.Replace(".txt", ".log");
+        string theRenamedOtherFileName = theOtherFileName.Replace(".txt", ".log");
         File.WriteAllText(theRenamedOtherFileName, @"This is some text.");
         expectedMessage = "There is\r\n" + theRenamedOtherFileName + ",\r\nbut that file does not exist in\r\n" + testRootFolder.FullName + @"\Machine1\Folder2\H\";
         Assert.AreEqual(expectedMessage, folder.Process());
@@ -228,20 +228,20 @@ public class DualityTest {
     [TestMethod]
     public void NextCheckIsWithinCheckInterval() {
         var errorsAndInfos = new ErrorsAndInfos();
-        var testRootFolder = TempFolder(true).SubFolder("NextCheckIsWithinCheckInterval");
+        IFolder testRootFolder = TempFolder(true).SubFolder("NextCheckIsWithinCheckInterval");
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
         CopyTemplateTestFileSystemTo(testRootFolder);
         const long ticks = 1000000000000;
-        var folders = CreateTestFoldersOnTwoMachines(testRootFolder, new DateTime(ticks));
+        DualityFolders folders = CreateTestFoldersOnTwoMachines(testRootFolder, new DateTime(ticks));
         var work = new DualityWork { ForMachine = folders[0].MachineId };
         work.UpdateFolders(folders);
-        var folder = work.DualityFolders[2];
+        DualityFolder folder = work.DualityFolders[2];
         Assert.IsTrue(folder.NeedsProcessing());
         Assert.AreEqual("", folder.Process());
         Assert.IsFalse(folder.NeedsProcessing());
-        var minimum = DateTime.Now.AddTicks(ticks / 2);
-        var maximum = DateTime.Now.AddTicks(ticks);
-        Assert.IsTrue(folder.NextCheckAt >= minimum);
-        Assert.IsTrue(folder.NextCheckAt <= maximum);
+        DateTime minimum = DateTime.Now.AddTicks(ticks / 2);
+        DateTime maximum = DateTime.Now.AddTicks(ticks);
+        Assert.IsGreaterThanOrEqualTo(minimum, folder.NextCheckAt);
+        Assert.IsLessThanOrEqualTo(maximum, folder.NextCheckAt);
     }
 }

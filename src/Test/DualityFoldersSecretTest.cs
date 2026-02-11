@@ -10,14 +10,14 @@ namespace Aspenlaub.Net.GitHub.CSharp.Duality.Test;
 
 [TestClass]
 public class DualityFoldersSecretTest {
-    private readonly IContainer _Container = new ContainerBuilder().UsePegh("Duality", new DummyCsArgumentPrompter()).Build();
+    private readonly IContainer _Container = new ContainerBuilder().UsePegh("Duality").Build();
 
     [TestMethod]
     public async Task CanGetSecretDualityFolders() {
         var secret = new DualityFoldersSecret();
         var errorsAndInfos = new ErrorsAndInfos();
-        var secretDualityFolders = await _Container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
+        DualityFolders secretDualityFolders = await _Container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
-        Assert.IsTrue(secretDualityFolders.Count >= 10);
+        Assert.IsGreaterThanOrEqualTo(10, secretDualityFolders.Count);
     }
 }

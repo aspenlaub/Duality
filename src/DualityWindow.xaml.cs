@@ -10,6 +10,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Autofac;
+using IContainer = Autofac.IContainer;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Duality;
 
@@ -30,11 +31,11 @@ public partial class DualityWindow {
     }
 
     private async Task UpdateWork() {
-        var container = new ContainerBuilder().UsePegh("Duality", new DummyCsArgumentPrompter()).Build();
+        IContainer container = new ContainerBuilder().UsePegh("Duality").Build();
 
         var secret = new DualityFoldersSecret();
         var errorsAndInfos = new ErrorsAndInfos();
-        var secretDualityFolders = await container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
+        DualityFolders secretDualityFolders = await container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             throw new Exception(errorsAndInfos.ErrorsToString());
         }
@@ -45,7 +46,7 @@ public partial class DualityWindow {
             return;
         }
 
-        var persistenceFolder = await container.Resolve<IFolderResolver>().ResolveAsync(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
+        IFolder persistenceFolder = await container.Resolve<IFolderResolver>().ResolveAsync(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             throw new Exception(errorsAndInfos.ErrorsToString());
         }
@@ -53,8 +54,8 @@ public partial class DualityWindow {
         persistenceFolder.CreateIfNecessary();
 
         var folderErrorsAndInfos = new ErrorsAndInfos();
-        var inaccessibleFolders = InaccessibleFolders(secretDualityFolders, out var numberOfSimilarFolders);
-        foreach (var inaccessibleFolder in inaccessibleFolders) {
+        List<string> inaccessibleFolders = InaccessibleFolders(secretDualityFolders, out int numberOfSimilarFolders);
+        foreach (string inaccessibleFolder in inaccessibleFolders) {
             folderErrorsAndInfos.Errors.Add($"Folder/-s is/are inaccessible: {inaccessibleFolder}");
         }
         if (numberOfSimilarFolders > 0) {
@@ -62,9 +63,9 @@ public partial class DualityWindow {
         }
         StartupInfoText.Text = folderErrorsAndInfos.ErrorsToString();
 
-        var workFileName = folderErrorsAndInfos.AnyErrors() ? $"DualityWorkPartial{folderErrorsAndInfos.Errors.Count}.xml" : "DualityWork.xml";
-        var workFile = persistenceFolder.FullName + @"\" + workFileName;
-        var work = File.Exists(workFile) ? new DualityWork(workFile, Environment.MachineName) : new DualityWork();
+        string workFileName = folderErrorsAndInfos.AnyErrors() ? $"DualityWorkPartial{folderErrorsAndInfos.Errors.Count}.xml" : "DualityWork.xml";
+        string workFile = persistenceFolder.FullName + @"\" + workFileName;
+        DualityWork work = File.Exists(workFile) ? new DualityWork(workFile, Environment.MachineName) : new DualityWork();
         work.UpdateFolders(secretDualityFolders.Where(x => !FolderIsInaccessible(x) && !OtherFolderIsInaccessible(x)).ToList());
         File.Delete(workFile);
         work.Save(workFile);
@@ -77,15 +78,15 @@ public partial class DualityWindow {
         var inaccessibleFolders = secretDualityFolders.Where(FolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.Folder).ToList();
         inaccessibleFolders.AddRange(secretDualityFolders.Where(OtherFolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.OtherFolder));
         inaccessibleFolders = inaccessibleFolders.Distinct().ToList();
-        for (var i = 1; i < inaccessibleFolders.Count; i++) {
+        for (int i = 1; i < inaccessibleFolders.Count; i++) {
             if (inaccessibleFolders[i].Length < numberOfSuffixCharacters) {
                 continue;
             }
-            var pos = inaccessibleFolders[i].IndexOf("\\", numberOfSuffixCharacters, StringComparison.InvariantCulture);
+            int pos = inaccessibleFolders[i].IndexOf("\\", numberOfSuffixCharacters, StringComparison.InvariantCulture);
             if (pos < 0) {
                 continue;
             }
-            for (var j = 0; j < i; j++) {
+            for (int j = 0; j < i; j++) {
                 if (inaccessibleFolders[j].Length < pos
                         ||  inaccessibleFolders[i][..numberOfSuffixCharacters] != inaccessibleFolders[j][..numberOfSuffixCharacters]) {
                     continue;
