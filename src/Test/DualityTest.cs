@@ -6,6 +6,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Seoa.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Skladasu.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Skladasu.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -185,7 +186,7 @@ public class DualityTest {
     public void CanDoBasicProcessing() {
         var errorsAndInfos = new ErrorsAndInfos();
         IFolder testRootFolder = TempFolder(true).SubFolder("CanDoBasicProcessing");
-        Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
+        Assert.That.ThereWereNoErrors(errorsAndInfos);
         CopyTemplateTestFileSystemTo(testRootFolder);
         DualityFolders folders = CreateTestFoldersOnTwoMachines(testRootFolder, new DateTime(0));
         var work = new DualityWork { ForMachine = folders[0].MachineId };
@@ -231,7 +232,7 @@ public class DualityTest {
     public void NextCheckIsWithinCheckInterval() {
         var errorsAndInfos = new ErrorsAndInfos();
         IFolder testRootFolder = TempFolder(true).SubFolder("NextCheckIsWithinCheckInterval");
-        Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
+        Assert.That.ThereWereNoErrors(errorsAndInfos);
         CopyTemplateTestFileSystemTo(testRootFolder);
         const long ticks = 1000000000000;
         DualityFolders folders = CreateTestFoldersOnTwoMachines(testRootFolder, new DateTime(ticks));

@@ -3,6 +3,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Seoa.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Skladasu.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Skladasu.Extensions;
 using Autofac;
@@ -19,7 +20,7 @@ public class DualityFoldersSecretTest {
         var secret = new DualityFoldersSecret();
         var errorsAndInfos = new ErrorsAndInfos();
         DualityFolders secretDualityFolders = await _Container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
-        Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
+        Assert.That.ThereWereNoErrors(errorsAndInfos);
         Assert.IsGreaterThanOrEqualTo(10, secretDualityFolders.Count);
     }
 }
