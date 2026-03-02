@@ -35,20 +35,20 @@ public class DualityWorker : BackgroundWorker {
         var worker = sender as BackgroundWorker;
         if (worker == null) { return; }
 
-        for (var i = 0; i < _DualityWork.DualityFolders.Count; i++) {
+        for (int i = 0; i < _DualityWork.DualityFolders.Count; i++) {
             if (worker.CancellationPending) {
                 e.Cancel = true;
                 break;
             }
             _LastProcessedFolder = _DualityWork.DualityFolders[i];
-            var needsProcessing = _LastProcessedFolder.NeedsProcessing();
+            bool needsProcessing = _LastProcessedFolder.NeedsProcessing();
             if (needsProcessing) {
                 _ErrorMessage = _LastProcessedFolder.Process();
             }
             if (i + 1 == _DualityWork.DualityFolders.Count) {
                 _AllDone = _ErrorMessage.Length == 0;
             }
-            worker.ReportProgress((i + 1) * 100 / _DualityWork.DualityFolders.Count);
+            worker.ReportProgress((i + 1) * 1000 / _DualityWork.DualityFolders.Count);
             if (_ErrorMessage.Length != 0) {
                 break;
             }
@@ -75,7 +75,7 @@ public class DualityWorker : BackgroundWorker {
         } else if (_AllDone) {
             _TextBox.Text = "Everything is fine";
         } else {
-            _TextBox.Text = e.ProgressPercentage + "% completed (Processed: " + _LastProcessedFolder.Folder + ")";
+            _TextBox.Text = 0.1 * e.ProgressPercentage + "% completed (Processed: " + _LastProcessedFolder.Folder + ")";
         }
     }
 
