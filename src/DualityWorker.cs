@@ -75,7 +75,7 @@ public class DualityWorker : BackgroundWorker {
         } else if (_AllDone) {
             _TextBox.Text = "Everything is fine";
         } else {
-            _TextBox.Text = 0.1 * e.ProgressPercentage + "% completed (Processed: " + _LastProcessedFolder.Folder + ")";
+            _TextBox.Text = string.Format("{0:F1}", 0.1 * e.ProgressPercentage) + "% completed (Processed: " + _LastProcessedFolder.Folder + ")";
         }
     }
 
