@@ -64,7 +64,7 @@ public class DualityTest {
             @"\NextCheckIsWithinCheckInterval\Machine2\OtherFolder\F",
             @"\NextCheckIsWithinCheckInterval\Machine2\Persistence",
         };
-        foreach (IFolder subFolder in subFolders.Select(f => folder.SubFolder(f))) {
+        foreach (IFolder subFolder in subFolders.Select(folder.SubFolder)) {
             subFolder.CreateIfNecessary();
         }
         return folder;
