@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
@@ -19,5 +20,7 @@ public class DualityFoldersSecretTest {
         DualityFolders secretDualityFolders = await _Container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
         Assert.That.ThereWereNoErrors(errorsAndInfos);
         Assert.IsGreaterThanOrEqualTo(10, secretDualityFolders.Count);
+        Assert.IsTrue(secretDualityFolders.Any(x => x.SendShortMessage));
+        Assert.IsTrue(secretDualityFolders.Any(x => !x.SendShortMessage));
     }
 }

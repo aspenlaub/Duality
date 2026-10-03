@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Web;
 
@@ -16,6 +17,9 @@ public class DualityFolder {
 
     [XmlAttribute("OtherFolder")]
     public string OtherFolder { get; set; }
+
+    [XmlAttribute("SendShortMessage")]
+    public bool SendShortMessage { get; set; }
 
     [XmlAttribute("LastCheckedAt")]
     public DateTime LastCheckedAt { get; set; }
@@ -149,11 +153,10 @@ public class DualityFolder {
             }
         }
 
-#if !DEBUG
-        if (errorMessage.Length != 0) {
+        if (SendShortMessage && errorMessage.Length != 0) {
             Task.Run(async () => await securedHttpGate.SendShortMessageAsync(errorMessage));
         }
-#endif
+
         if (errorMessage.Length != 0 || !checkContents) {
             return errorMessage;
         }
