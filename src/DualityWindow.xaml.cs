@@ -10,6 +10,9 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Skladasu.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Skladasu.Extensions;
+using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.Web;
+using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Web;
+using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Web;
 using Autofac;
 using IContainer = Autofac.IContainer;
 
@@ -31,12 +34,14 @@ public partial class DualityWindow {
         await UpdateWorkAndRun();
     }
 
-    private async Task UpdateWork() {
-        IContainer container = new ContainerBuilder().UsePegh("Duality").Build();
+    private async Task UpdateWorkAsync() {
+        IContainer container = new ContainerBuilder().UsePegh(Title).Build();
+        ISecretRepository repository = container.Resolve<ISecretRepository>();
+        IFolderResolver resolver = container.Resolve<IFolderResolver>();
 
         var secret = new DualityFoldersSecret();
         var errorsAndInfos = new ErrorsAndInfos();
-        DualityFolders secretDualityFolders = await container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
+        DualityFolders secretDualityFolders = await repository.GetAsync(secret, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             throw new Exception(errorsAndInfos.ErrorsToString());
         }
@@ -47,7 +52,7 @@ public partial class DualityWindow {
             return;
         }
 
-        IFolder persistenceFolder = await container.Resolve<IFolderResolver>().ResolveAsync(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
+        IFolder persistenceFolder = await resolver.ResolveAsync(@"$(GitHub)\DualityBin\Release\Persistence", errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             throw new Exception(errorsAndInfos.ErrorsToString());
         }
@@ -67,10 +72,17 @@ public partial class DualityWindow {
         string workFileName = folderErrorsAndInfos.AnyErrors() ? $"DualityWorkPartial{folderErrorsAndInfos.Errors.Count}.xml" : "DualityWork.xml";
         string workFile = persistenceFolder.FullName + @"\" + workFileName;
         DualityWork work = File.Exists(workFile) ? new DualityWork(workFile, Environment.MachineName) : new DualityWork();
-        work.UpdateFolders(secretDualityFolders.Where(x => !FolderIsInaccessible(x) && !OtherFolderIsInaccessible(x)).ToList());
+        work.UpdateFolders([.. secretDualityFolders.Where(x => !FolderIsInaccessible(x) && !OtherFolderIsInaccessible(x))]);
         File.Delete(workFile);
         work.Save(workFile);
-        _DualityWorker = new DualityWorker(work, workFile, InfoText);
+
+        var securedHttpGateSettingsSecret = new SecretSecuredHttpGateSettings();
+        errorsAndInfos = new ErrorsAndInfos();
+        SecuredHttpGateSettings securedHttpGateSettings = await repository.GetAsync(securedHttpGateSettingsSecret, errorsAndInfos);
+        ISecuredHttpGate gate = new SecuredHttpGate(new HttpGate(), securedHttpGateSettings, resolver,
+            container.Resolve<IStringCrypter>());
+
+        _DualityWorker = new DualityWorker(work, workFile, InfoText, gate);
     }
 
     private List<string> InaccessibleFolders(DualityFolders secretDualityFolders, out int numberOfSimilarFolders) {
@@ -78,7 +90,7 @@ public partial class DualityWindow {
         const int numberOfSuffixCharacters = 24;
         var inaccessibleFolders = secretDualityFolders.Where(FolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.Folder).ToList();
         inaccessibleFolders.AddRange(secretDualityFolders.Where(OtherFolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.OtherFolder));
-        inaccessibleFolders = inaccessibleFolders.Distinct().ToList();
+        inaccessibleFolders = [.. inaccessibleFolders.Distinct()];
         for (int i = 1; i < inaccessibleFolders.Count; i++) {
             if (inaccessibleFolders[i].Length < numberOfSuffixCharacters) {
                 continue;
@@ -98,7 +110,7 @@ public partial class DualityWindow {
                 break;
             }
         }
-        return inaccessibleFolders.Where(x => !string.IsNullOrEmpty(x)).ToList();
+        return [.. inaccessibleFolders.Where(x => !string.IsNullOrEmpty(x))];
     }
 
     private void CloseButton_OnClick(object sender, RoutedEventArgs e) {
@@ -134,7 +146,7 @@ public partial class DualityWindow {
             return;
         }
 
-        await UpdateWork();
+        await UpdateWorkAsync();
         _DualityWorker?.ResetError();
         _DualityWorker?.RunWorkerAsync();
     }

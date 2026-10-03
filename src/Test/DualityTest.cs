@@ -197,26 +197,26 @@ public class DualityTest {
         var timeStamp = new DateTime(2013, 11, 2, 12, 24, 6);
         File.SetLastWriteTime(theFileName, timeStamp);
         string expectedMessage = "There is\r\n" + theFileName + ",\r\nbut that file does not exist in\r\n" + testRootFolder.FullName + @"\Machine1\OtherFolder2\H\";
-        Assert.AreEqual(expectedMessage, folder.Process());
+        Assert.AreEqual(expectedMessage, folder.Process(new FakeSecuredHttpGate()));
         Assert.IsTrue(folder.NeedsProcessing());
 
         string theOtherFileName = testRootFolder.FullName + @"\Machine1\OtherFolder2\H\A_File.txt";
         File.WriteAllText(theOtherFileName, @"This is some text.");
         File.SetLastWriteTime(theOtherFileName, new DateTime(2013, 11, 6, 22, 6, 24));
-        Assert.AreEqual("", folder.Process());
+        Assert.AreEqual("", folder.Process(new FakeSecuredHttpGate()));
         Assert.IsTrue(folder.NeedsProcessing());
 
         Assert.AreEqual(timeStamp, File.GetLastWriteTime(theOtherFileName));
         File.WriteAllText(theOtherFileName, @"This is some text..");
         expectedMessage = "The contents and last-write-time of\r\n" + theFileName + "\r\ndiffers from the contents/lwt of\r\n" + theOtherFileName;
-        Assert.AreEqual(expectedMessage, folder.Process());
+        Assert.AreEqual(expectedMessage, folder.Process(new FakeSecuredHttpGate()));
         Assert.IsTrue(folder.NeedsProcessing());
 
         File.WriteAllText(theOtherFileName, @"This is some text.");
         string theRenamedOtherFileName = theOtherFileName.Replace(".txt", ".log");
         File.WriteAllText(theRenamedOtherFileName, @"This is some text.");
         expectedMessage = "There is\r\n" + theRenamedOtherFileName + ",\r\nbut that file does not exist in\r\n" + testRootFolder.FullName + @"\Machine1\Folder2\H\";
-        Assert.AreEqual(expectedMessage, folder.Process());
+        Assert.AreEqual(expectedMessage, folder.Process(new FakeSecuredHttpGate()));
         Assert.IsTrue(folder.NeedsProcessing());
 
         File.Delete(theFileName);
@@ -239,7 +239,7 @@ public class DualityTest {
         work.UpdateFolders(folders);
         DualityFolder folder = work.DualityFolders[2];
         Assert.IsTrue(folder.NeedsProcessing());
-        Assert.AreEqual("", folder.Process());
+        Assert.AreEqual("", folder.Process(new FakeSecuredHttpGate()));
         Assert.IsFalse(folder.NeedsProcessing());
         DateTime minimum = DateTime.Now.AddTicks(ticks / 2);
         DateTime maximum = DateTime.Now.AddTicks(ticks);

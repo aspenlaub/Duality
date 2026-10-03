@@ -1,8 +1,10 @@
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Web;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Duality;
 
@@ -13,13 +15,15 @@ public class DualityWorker : BackgroundWorker {
     private readonly string _WorkFileName;
     private string _ErrorMessage;
     private bool _AllDone;
+    private readonly ISecuredHttpGate _SecuredHttpGate;
 
-    public DualityWorker(DualityWork work, string workFileName, TextBox textBox) {
+    public DualityWorker(DualityWork work, string workFileName, TextBox textBox, ISecuredHttpGate securedHttpGate) {
         _TextBox = textBox;
         _DualityWork = work;
         _WorkFileName = workFileName;
         _ErrorMessage = "";
         _AllDone = false;
+        _SecuredHttpGate = securedHttpGate;
         WorkerReportsProgress = true;
         WorkerSupportsCancellation = true;
         DoWork += BackgroundWorker_DoWork;
@@ -43,7 +47,7 @@ public class DualityWorker : BackgroundWorker {
             _LastProcessedFolder = _DualityWork.DualityFolders[i];
             bool needsProcessing = _LastProcessedFolder.NeedsProcessing();
             if (needsProcessing) {
-                _ErrorMessage = _LastProcessedFolder.Process();
+                _ErrorMessage = _LastProcessedFolder.Process(_SecuredHttpGate);
             }
             if (i + 1 == _DualityWork.DualityFolders.Count) {
                 _AllDone = _ErrorMessage.Length == 0;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
+using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Web;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Duality;
 
@@ -32,13 +33,13 @@ public class DualityFolder {
         return NextCheckAt <= DateTime.Now;
     }
 
-    public string Process() {
-        var errorMessage = Process(false);
-        return string.IsNullOrEmpty(errorMessage) ? Process(true) : errorMessage;
+    public string Process(ISecuredHttpGate securedHttpGate) {
+        string errorMessage = Process(false, securedHttpGate);
+        return string.IsNullOrEmpty(errorMessage) ? Process(true, securedHttpGate) : errorMessage;
     }
 
-    public string Process(bool checkContents) {
-        var errorMessage = "";
+    public string Process(bool checkContents, ISecuredHttpGate securedHttpGate) {
+        string errorMessage = "";
         if (!Folder.EndsWith("\\")) {
             errorMessage = $"Folder does not end with a backslash: {Folder}";
         } else {
@@ -52,17 +53,19 @@ public class DualityFolder {
             }
         }
         if (errorMessage.Length == 0) {
-            var searchOption = Folder.Substring(Folder.Length - 2) == ".\\" ? SearchOption.TopDirectoryOnly : SearchOption.AllDirectories;
+            SearchOption searchOption = Folder.Substring(Folder.Length - 2) == ".\\" ? SearchOption.TopDirectoryOnly : SearchOption.AllDirectories;
             List<string> shortFileNames;
             try {
-                shortFileNames = (from fileName in Directory.EnumerateFiles(Folder, "*", searchOption)
-                      where !fileName.EndsWith(".HDP")
-                      select fileName.Substring(Folder.Length)).ToList();
+                shortFileNames = [
+                    .. from fileName in Directory.EnumerateFiles(Folder, "*", searchOption)
+                       where !fileName.EndsWith(".HDP")
+                       select fileName.Substring(Folder.Length)
+                ];
             } catch (Exception) {
                 errorMessage = "Something is wrong, could not list files in: " + Folder;
                 shortFileNames = [];
             }
-            foreach (var shortFileName in shortFileNames) {
+            foreach (string shortFileName in shortFileNames) {
                 if (!File.Exists(Folder + shortFileName)) {
                     errorMessage = "Something is wrong, file not found: " + Folder + shortFileName;
                     break;
@@ -130,8 +133,8 @@ public class DualityFolder {
         }
         if (errorMessage.Length == 0) {
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var fileName in Directory.EnumerateFiles(OtherFolder, "*", SearchOption.TopDirectoryOnly)) {
-                var shortFileName = fileName.Substring(fileName.LastIndexOf('\\') + 1);
+            foreach (string fileName in Directory.EnumerateFiles(OtherFolder, "*", SearchOption.TopDirectoryOnly)) {
+                string shortFileName = fileName.Substring(fileName.LastIndexOf('\\') + 1);
                 if (!File.Exists(OtherFolder + shortFileName)) {
                     errorMessage = "Something is wrong, file not found: " + OtherFolder + shortFileName;
                     break;
@@ -146,13 +149,18 @@ public class DualityFolder {
             }
         }
 
+#if !DEBUG
+        if (errorMessage.Length != 0) {
+            Task.Run(async () => await securedHttpGate.SendShortMessageAsync(errorMessage));
+        }
+#endif
         if (errorMessage.Length != 0 || !checkContents) {
             return errorMessage;
         }
 
         LastCheckedAt = DateTime.Now;
         var random = new Random();
-        var ticks = (long)((random.NextDouble() + 1) * CheckInterval.Ticks / 2);
+        long ticks = (long)((random.NextDouble() + 1) * CheckInterval.Ticks / 2);
         NextCheckAt = DateTime.Now.AddTicks(ticks);
         return errorMessage;
     }
@@ -160,14 +168,14 @@ public class DualityFolder {
     public List<string> TopSubFolders() {
         var topSubDirs = new List<string> { ".\\" };
         // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (var dir in Directory.EnumerateDirectories(Folder, "*", SearchOption.TopDirectoryOnly)) {
-            var subDir = dir.Substring(Folder.Length);
+        foreach (string dir in Directory.EnumerateDirectories(Folder, "*", SearchOption.TopDirectoryOnly)) {
+            string subDir = dir.Substring(Folder.Length);
             if (!(Directory.Exists(Folder + subDir) || Directory.Exists(OtherFolder + subDir))) { continue; }
             topSubDirs.Add(subDir + '\\');
         }
         // ReSharper disable once LoopCanBePartlyConvertedToQuery
-        foreach (var dir in Directory.EnumerateDirectories(OtherFolder, "*", SearchOption.TopDirectoryOnly)) {
-            var subDir = dir.Substring(OtherFolder.Length);
+        foreach (string dir in Directory.EnumerateDirectories(OtherFolder, "*", SearchOption.TopDirectoryOnly)) {
+            string subDir = dir.Substring(OtherFolder.Length);
             if (topSubDirs.Contains(subDir + '\\')) {
                 continue;
             }
