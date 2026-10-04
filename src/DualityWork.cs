@@ -26,7 +26,7 @@ public class DualityWork() {
         var xmlSerializer = new XmlSerializer(typeof(DualityWork));
         var collection = (DualityWork)xmlSerializer.Deserialize(fileStream);
         if (collection != null && collection.ForMachine == ForMachine) {
-            foreach (var folder in collection.DualityFolders) {
+            foreach (DualityFolder folder in collection.DualityFolders) {
                 DualityFolders.Add(folder);
             }
         }
@@ -51,14 +51,23 @@ public class DualityWork() {
 
         DualityFolders.ForEach(x => x.Needed = false);
         var newFolders = new List<DualityFolder>();
-        foreach (var folder in folders) {
-            foreach (var subFolder in folder.TopSubFolders()) {
+        foreach (DualityFolder folder in folders) {
+            foreach (string subFolder in folder.TopSubFolders()) {
                 var existingFolders = DualityFolders.Where(x => x.Folder == folder.Folder + subFolder && x.OtherFolder == folder.OtherFolder + subFolder).ToList();
                 if (existingFolders.Any()) {
-                    existingFolders.ForEach(x => { x.Needed = true; x.CheckInterval = folder.CheckInterval; });
+                    existingFolders.ForEach(x => {
+                        x.Needed = true;
+                        x.CheckInterval = folder.CheckInterval;
+                        x.SendShortMessage = folder.SendShortMessage;
+                    });
                 } else {
                     newFolders.Add(new DualityFolder {
-                        Folder = folder.Folder + subFolder, OtherFolder = folder.OtherFolder + subFolder, Needed = true, LastCheckedAt = new DateTime(0), CheckInterval = folder.CheckInterval
+                        Folder = folder.Folder + subFolder,
+                        OtherFolder = folder.OtherFolder + subFolder,
+                        Needed = true,
+                        LastCheckedAt = new DateTime(0),
+                        CheckInterval = folder.CheckInterval,
+                        SendShortMessage = folder.SendShortMessage
                     });
                 }
             }

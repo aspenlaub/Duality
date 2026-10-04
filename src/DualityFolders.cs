@@ -21,7 +21,7 @@ public class DualityFolders : List<DualityFolder>, ISecretResult<DualityFolders>
         if (folders == null) {
             throw new Exception($"Could not deserialize \"{fileName}\"");
         }
-        foreach (var folder in folders) {
+        foreach (DualityFolder folder in folders) {
             Add(folder);
         }
         fileStream.Flush();
@@ -50,7 +50,7 @@ public class DualityFolders : List<DualityFolder>, ISecretResult<DualityFolders>
 
     public DualityFolders ForThisMachine() {
         var foldersForThisMachine = new DualityFolders();
-        var machineId = Environment.MachineName.ToUpper();
+        string machineId = Environment.MachineName.ToUpper();
         foldersForThisMachine.AddRange(this.Where(x => x.MachineId.ToUpper() == machineId));
         return foldersForThisMachine;
     }
