@@ -72,7 +72,7 @@ public partial class DualityWindow {
         string workFileName = folderErrorsAndInfos.AnyErrors() ? $"DualityWorkPartial{folderErrorsAndInfos.Errors.Count}.xml" : "DualityWork.xml";
         string workFile = persistenceFolder.FullName + @"\" + workFileName;
         DualityWork work = File.Exists(workFile) ? new DualityWork(workFile, Environment.MachineName) : new DualityWork();
-        work.UpdateFolders([.. secretDualityFolders.Where(x => !FolderIsInaccessible(x) && !OtherFolderIsInaccessible(x))]);
+        work.UpdateFolders([.. secretDualityFolders.Where(x => !FolderAccessibility.FolderIsInaccessible(x) && !FolderAccessibility.OtherFolderIsInaccessible(x))]);
         File.Delete(workFile);
         work.Save(workFile);
 
@@ -88,8 +88,8 @@ public partial class DualityWindow {
     private List<string> InaccessibleFolders(DualityFolders secretDualityFolders, out int numberOfSimilarFolders) {
         numberOfSimilarFolders = 0;
         const int numberOfSuffixCharacters = 24;
-        var inaccessibleFolders = secretDualityFolders.Where(FolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.Folder).ToList();
-        inaccessibleFolders.AddRange(secretDualityFolders.Where(OtherFolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.OtherFolder));
+        var inaccessibleFolders = secretDualityFolders.Where(FolderAccessibility.FolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.Folder).ToList();
+        inaccessibleFolders.AddRange(secretDualityFolders.Where(FolderAccessibility.OtherFolderIsInaccessible).Select(secretDualityFolder => secretDualityFolder.OtherFolder));
         inaccessibleFolders = [.. inaccessibleFolders.Distinct()];
         for (int i = 1; i < inaccessibleFolders.Count; i++) {
             if (inaccessibleFolders[i].Length < numberOfSuffixCharacters) {
@@ -151,19 +151,4 @@ public partial class DualityWindow {
         _DualityWorker?.RunWorkerAsync();
     }
 
-    private bool FolderIsInaccessible(DualityFolder folder) {
-        try {
-            return !Directory.Exists(folder.Folder);
-        } catch {
-            return true;
-        }
-    }
-
-    private bool OtherFolderIsInaccessible(DualityFolder folder) {
-        try {
-            return !Directory.Exists(folder.OtherFolder);
-        } catch {
-            return true;
-        }
-    }
 }

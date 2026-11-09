@@ -170,21 +170,31 @@ public class DualityFolder {
 
     public List<string> TopSubFolders() {
         var topSubDirs = new List<string> { ".\\" };
+        if (FolderAccessibility.FolderIsInaccessible(this) || FolderAccessibility.OtherFolderIsInaccessible(this)) {
+            return topSubDirs;
+        }
+
         // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (string dir in Directory.EnumerateDirectories(Folder, "*", SearchOption.TopDirectoryOnly)) {
             string subDir = dir.Substring(Folder.Length);
             if (!(Directory.Exists(Folder + subDir) || Directory.Exists(OtherFolder + subDir))) { continue; }
             topSubDirs.Add(subDir + '\\');
         }
+
         // ReSharper disable once LoopCanBePartlyConvertedToQuery
         foreach (string dir in Directory.EnumerateDirectories(OtherFolder, "*", SearchOption.TopDirectoryOnly)) {
             string subDir = dir.Substring(OtherFolder.Length);
             if (topSubDirs.Contains(subDir + '\\')) {
                 continue;
             }
-            if (!(Directory.Exists(Folder + subDir) || Directory.Exists(OtherFolder + subDir))) { continue; }
+
+            if (!(Directory.Exists(Folder + subDir) || Directory.Exists(OtherFolder + subDir))) {
+                continue;
+            }
+
             topSubDirs.Add(subDir + '\\');
         }
+
         return topSubDirs;
     }
 
