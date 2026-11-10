@@ -2,9 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net11.0-windows</TargetFramework>
     <RestoreEnablePackagePruning>false</RestoreEnablePackagePruning>
-    <AssetTargetFallback>net10.0</AssetTargetFallback>
+    <AssetTargetFallback>net11.0</AssetTargetFallback>
     <UseWPF>true</UseWPF>
     <AssemblyName>Aspenlaub.Net.GitHub.CSharp.Duality</AssemblyName>
     <RootNamespace>Aspenlaub.Net.GitHub.CSharp.Duality</RootNamespace>
@@ -55,6 +55,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Vishizhukel" Version="2.0.2666.1207" />
+    <PackageReference Include="Vishizhukel" Version="2.0.2666.1382" />
   </ItemGroup>
 </Project>
