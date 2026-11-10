@@ -35,7 +35,8 @@ public class FolderAccessibility {
                 return true;
             }
 
-            bool exists = existsTask.Result;
+            // TODO: Properly await the task
+            bool exists = existsTask.GetAwaiter().GetResult();
             if (exists) {
                 _accessibleFolders.Add(folder.Folder);
             } else {
@@ -70,7 +71,8 @@ public class FolderAccessibility {
                 return true;
             }
 
-            bool exists = existsTask.Result;
+            // TODO: Properly await the task
+            bool exists = existsTask.GetAwaiter().GetResult();
             if (exists) {
                 _accessibleFolders.Add(folder.OtherFolder);
             } else {
